@@ -41,9 +41,19 @@ rm "${jscat}" >/dev/null 2>&1
 # Zip everything up
 zip -j "${zipfile}" "${buildpath}"/*
 
-# Re-Zip with advzip
-advzip -k -z -4 "${zipfile}"
+# Re-Zip with advzip to save a bit more
+advzip -i 20 -k -z -4 "${zipfile}"
 
 # Determine file sizes and compression
 unzip -lv "${zipfile}"
 stat "${zipfile}"
+
+zipsize=`stat -c %s "${zipfile}"`
+bytesleft=$(((12*1024)-${zipsize}))
+
+if [ ${bytesleft} -ge 0 ]
+then
+  echo "YAY, it fits with ${bytesleft} bytes spare"
+else
+  echo "OH NO, it's gone ovey by "$((0-${bytesleft}))" bytes"
+fi
