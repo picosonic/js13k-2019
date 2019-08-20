@@ -5,9 +5,19 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
   <title>TODO</title>
   <link rel="stylesheet" href="main.css">
+  <script type="text/javascript" src="font.js"></script>
+  <script type="text/javascript" src="writer.js"></script>
   <script type="text/javascript" src="main.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 </head>
 <body>
+
+  <svg id="svg" style="position:absolute; top:0px; left:0px; width:100%; height:100%;">
+    <filter id="segblur">
+      <feGaussianBlur stdDeviation="4" />
+    </filter>
+    <g id="obj"></g>
+  </svg>
+
 </body>
 </html>
