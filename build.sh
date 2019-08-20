@@ -12,7 +12,7 @@ mkdir "${buildpath}"
 
 # Concatenate and minify the JS files
 touch "${jscat}" >/dev/null 2>&1
-for file in "main.js"
+for file in "font.js" "writer.js" "main.js"
 do
   yui-compressor "${file}" >> "${jscat}"
 done
@@ -33,7 +33,7 @@ echo -n '</style><script type="text/javascript">' >> "${indexcat}"
 ./closeyoureyes.sh "${jscat}" >> "${indexcat}"
 
 # Add on the rest of the index file
-echo -n '</script><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/></head><body></body></html>' >> "${indexcat}"
+echo -n '</script><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/></head><body><svg id="svg" style="position:absolute; top:0px; left:0px; width:100%; height:100%;" xmlns="http://www.w3.org/2000/svg"><filter id="segblur"><feGaussianBlur stdDeviation="4" /></filter><g id="obj"></g></svg></body></html>' >> "${indexcat}"
 
 # Remove the minified JS
 rm "${jscat}" >/dev/null 2>&1
@@ -49,11 +49,13 @@ unzip -lv "${zipfile}"
 stat "${zipfile}"
 
 zipsize=`stat -c %s "${zipfile}"`
-bytesleft=$(((12*1024)-${zipsize}))
+maxsize=$((13*1024))
+bytesleft=$((${maxsize}-${zipsize}))
+percent=$((200*${zipsize}/${maxsize} % 2 + 100*${zipsize}/${maxsize}))
 
 if [ ${bytesleft} -ge 0 ]
 then
-  echo "YAY, it fits with ${bytesleft} bytes spare"
+  echo "YAY ${percent}% used - it fits with ${bytesleft} bytes spare"
 else
-  echo "OH NO, it's gone ovey by "$((0-${bytesleft}))" bytes"
+  echo "OH NO ${percent}% used - it's gone ovey by "$((0-${bytesleft}))" bytes"
 fi
