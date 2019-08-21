@@ -1,4 +1,4 @@
-function writeseg(id, x, y, text)
+function writeseg(id, x, y, text, colour)
 {
   var svgtext="";
   var charwidth=52;
@@ -21,7 +21,7 @@ function writeseg(id, x, y, text)
 
       for (var j=0; j<16; j++)
         if (segcode&(1<<j))
-          svgtext+=font_14segment_cell[j].replace('PARAMS', 'style="fill:#ff0000;stroke:none;" transform="translate('+(x+(i*charwidth))+' '+y+')"');
+          svgtext+=font_14segment_cell[j].replace('PARAMS', 'style="fill:'+(colour||'#ff0000')+';stroke:none;" transform="translate('+(x+(i*charwidth))+' '+y+')"');
 
       svgtext+="</g>";
     }
