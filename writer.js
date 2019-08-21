@@ -21,7 +21,23 @@ function writeseg(id, x, y, text, colour)
 
       for (var j=0; j<16; j++)
         if (segcode&(1<<j))
-          svgtext+=font_14segment_cell[j].replace('PARAMS', 'style="fill:'+(colour||'#ff0000')+';stroke:none;" transform="translate('+(x+(i*charwidth))+' '+y+')"');
+        {
+          if (j==14) // DP
+          {
+            svgtext+='<circle cx="'+font_14segment_cell[j][0]+'" cy="'+font_14segment_cell[j][1]+'" r="'+font_14segment_cell[j][2];
+          }
+          else
+          {
+            svgtext+='<polygon points="';
+            for (var l=0; l<font_14segment_cell[j].length/2; l++)
+            {
+              svgtext+=' '+font_14segment_cell[j][l*2];
+              svgtext+=','+font_14segment_cell[j][l*2+1];
+            }
+          }
+
+          svgtext+='" style="fill:'+(colour||'#ff0000')+';stroke:none;" transform="translate('+(x+(i*charwidth))+' '+y+')"/>';
+        }
 
       svgtext+="</g>";
     }
