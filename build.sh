@@ -10,15 +10,15 @@ rm -Rf "${buildpath}" >/dev/null 2>&1
 rm -Rf "${zipfile}" >/dev/null 2>&1
 mkdir "${buildpath}"
 
-# Concatenate and minify the JS files
+# Concatenate the JS files
 touch "${jscat}" >/dev/null 2>&1
-for file in "font.js" "writer.js" "main.js"
+for file in "font.js" "writer.js" "models.js" "3dsvg.js" "main.js"
 do
-  yui-compressor "${file}" >> "${jscat}"
+  cat "${file}" >> "${jscat}"
 done
 
 # Add the index header
-echo -n '<!DOCTYPE html><html><head><meta charset="utf-8"/><meta http-equiv="Content-Type" content="text/html;charset=utf-8"/><title>TODO</title><style>' > "${indexcat}"
+echo -n '<!DOCTYPE html><html><head><meta charset="utf-8"/><meta http-equiv="Content-Type" content="text/html;charset=utf-8"/><title>BACKSPACE - Return to planet Figadore</title><style>' > "${indexcat}"
 
 # Inject the concatenated and minified CSS files
 for file in "main.css"
@@ -33,7 +33,7 @@ echo -n '</style><script type="text/javascript">' >> "${indexcat}"
 ./closeyoureyes.sh "${jscat}" >> "${indexcat}"
 
 # Add on the rest of the index file
-echo -n '</script><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/></head><body><svg id="svg" style="position:absolute; top:0px; left:0px; width:100%; height:100%;" xmlns="http://www.w3.org/2000/svg"><filter id="segblur"><feGaussianBlur stdDeviation="4" /></filter><g id="obj"></g></svg></body></html>' >> "${indexcat}"
+echo -n '</script><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/></head><body><svg id="svg" style="position:absolute; top:0px; left:0px; width:100%; height:100%;" xmlns="http://www.w3.org/2000/svg"><filter id="segblur"><feGaussianBlur stdDeviation="4" /></filter><g id="playfield"></g><g id="hud"></g></svg></body></html>' >> "${indexcat}"
 
 # Remove the minified JS
 rm "${jscat}" >/dev/null 2>&1
