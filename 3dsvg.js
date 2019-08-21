@@ -123,8 +123,217 @@ class svg3d
     this.cy=Math.floor(this.y);
   }
 
-  render()
+  calcnormal(v1, v2, v3)
   {
+    var u={
+      x:v2[0]-v1[0],
+      y:v2[1]-v1[1],
+      z:v2[2]-v1[2]
+    };
+
+    var v={
+      x:v3[0]-v1[0],
+      y:v3[1]-v1[1],
+      z:v3[2]-v1[2]
+    };
+
+    var n={
+      x:(u.y*v.z)-(u.z*v.y),
+      y:(u.z*v.x)-(u.x*v.z),
+      z:(u.x*v.y)-(u.y*v.x)
+    };
+
+    return n;
+  }
+
+  Q_rsqrt(x) // Q3 fast inverse square root
+  {
+    const qbuf = new ArrayBuffer(4), f32 = new Float32Array(qbuf), u32 = new Uint32Array(qbuf);
+    const x2 = 0.5 * (f32[0] = x);
+    u32[0] = (/*0x5f3759df*/0x5f375a86 - (u32[0] >> 1));
+    let y = f32[0];
+    y  = y * ( 1.5 - ( x2 * y * y ) );
+    return y;
+  }
+
+  calcshade(v1, v2, v3)
+  {
+    var norm=this.calcnormal(v1, v2, v3);
+    var lightpos={x:0, y:0, z:-600};
+    var len=0;
+    var lightdir={
+      x:lightpos.x-v1[0],
+      y:lightpos.y-v1[1],
+      z:lightpos.z-v1[2]
+    };
+
+    // Normalise norm
+    len=(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+  //  len=Math.sqrt(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+    len*=this.Q_rsqrt(len);
+    if (len!=0)
+    {
+      len=(1.0/len);
+      norm.x*=len; norm.y*=len; norm.z*=len;
+    }
+
+    // Normalise light direction
+    len=(lightdir.x * lightdir.x + lightdir.y * lightdir.y + lightdir.z * lightdir.z);
+  //  len=Math.sqrt(lightdir.x * lightdir.x + lightdir.y * lightdir.y + lightdir.z * lightdir.z);
+    len*=this.Q_rsqrt(len);
+    if (len!=0)
+    {
+      len=(1.0/len);
+      lightdir.x*=len; lightdir.y*=len; lightdir.z*=len;
+    }
+
+    // compute angle between normal and light
+
+    return Math.max(0, (norm.x * lightdir.x + norm.y * lightdir.y + norm.z * lightdir.z));
+  }
+
+  draw3dpoly(mesh, face, vs, p, mx, my, mz)
+  {
+  var lobj='<polygon points="';
+  var poly={zmin:0,zmax:0,obj:""};
+  var zds=[];
+  var xs=[];
+  var ys=[];
+  var zs=[];
+  var axs=[];
+  var ays=[];
+  var azs=[];
+
+  var shade=0;
+  var ambient=0.08;
+  var intensity=0.7;
+
+  if (face.length==2)
+  {
+    lobj='<line ';
+
+    this.move3d(mx+(mesh.v[face[0]-1][0]*vs),my+(mesh.v[face[0]-1][1]*vs),mz+(mesh.v[face[0]-1][2]*vs));
+    lobj+='x1="'+this.cx+'" y1="'+this.cy+'" ';
+    zds.push(this.z);
+
+    this.move3d(mx+(mesh.v[face[1]-1][0]*vs),my+(mesh.v[face[1]-1][1]*vs),mz+(mesh.v[face[1]-1][2]*vs));
+    lobj+='x2="'+this.cx+'" y2="'+this.cy+'"  class="line3d"/>';
+
+    zds.push(this.z);
+
+    // Determine further point in Z buffer
+    poly.zmax=Math.max(...zds);
+    poly.zmin=Math.min(...zds);
+
+    poly.obj=lobj;
+
+    return poly;
+  }
+
+  // Iterate through vertices for face
+  for (var fv=0; fv<face.length; fv++)
+  {
+    xs[fv]=mx+(mesh.v[face[fv]-1][0]*vs);
+    ys[fv]=my+(mesh.v[face[fv]-1][1]*vs);
+    zs[fv]=mz+(mesh.v[face[fv]-1][2]*vs);
+
+    this.move3d(xs[fv], ys[fv], zs[fv]);
+    axs[fv]=this.cx; ays[fv]=this.cy; azs[fv]=this.z;
+    zds.push(this.z);
+
+    // Serialize 2d vertex position to SVG polygon
+    lobj+=this.cx+','+this.cy+' ';
+  }
+
+  var nz=((axs[0]-axs[1])*(ays[2]-ays[1])) - ((ays[0]-ays[1])*(axs[2]-axs[1]));
+
+  // Determine if back face
+  if (nz>=0)
+  {
+    // Determine furthest points in Z buffer
+    poly.zmax=Math.max(...zds);
+    poly.zmin=Math.min(...zds);
+
+    // Determine if behind viewer
+    if (poly.zmin>-this.f)
+    {
+      // Calculate a shade value (percent of face colour)
+      shade=this.calcshade([axs[0],ays[0],azs[0]], [axs[1],ays[1],azs[1]], [axs[2],ays[2],azs[2]])*intensity;
+      shade+=ambient;
+
+      // Clamp to 0..100%
+      if (shade<0) shade=0;
+      if (shade>1) shade=1;
+
+      var rgbstr=Math.floor(palette[p][0]*shade)+','+Math.floor(palette[p][1]*shade)+','+Math.floor(palette[p][2]*shade);
+
+      // Serialize fill colour and close SVG polygon
+      lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
+
+      poly.obj=lobj;
+    }
+  }
+
+  return poly;
+}  
+
+  drawobj(mesh, mx, my, mz)
+  {
+    var polys=[];
+    var norms=[];
+
+    // Iterate through object faces
+    mesh.f.forEach(function (item, index) {
+      if (mesh.n==undefined)
+        norms[index]=this.calcnormal(mesh.v[item[0]-1], mesh.v[item[1]-1], mesh.v[item[2]-1]);
+      polys.push(this.draw3dpoly(mesh, item, mesh.s, mesh.c[index]||7, mx+this.tranx, my+this.trany, mz+this.tranz));
+    }, this);
+
+    if (mesh.n==undefined)
+      mesh.n=norms;
+
+    return polys;
+  }
+
+  renderobjs(polys)
+  {
+    var svgtxt="";
+
+    // Order faces by z such that largest z gets rendered first
+    polys.sort(function(a,b){return b.zmax-a.zmax});
+
+    // Serialise polys
+    polys.forEach(function(item, index){svgtxt+=item.obj});
+
+    return svgtxt;
+  }
+
+  render(progress)
+  {
+    var polys=[];
+
+    // Initialise rotation
+    this.initrotation(2.5+progress, 3.01+progress, 2.95+progress);
+
+    // Find polygons from visible objects
+    polys=polys.concat(this.drawobj(models[0], 0, 0, 0));
+
+    // Update the SVG with the new frame
+    this.svgobj.innerHTML=this.renderobjs(polys);
+  }
+
+  resize()
+  {
+    // Determine window size
+    this.xmax=window.innerWidth;
+    this.ymax=window.innerHeight;
+
+    // Resize svg object to fit window
+    this.svg.style.width=this.xmax+"px";
+    this.svg.style.height=this.ymax+"px";
+
+    // Adjust scaling to match window width
+    this.vscale=this.xmax/1500;
   }
 
   init()

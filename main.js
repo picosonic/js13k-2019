@@ -36,6 +36,8 @@ function rafcallback(timestamp)
     if ((gs.acc>gs.step) && ((gs.acc/gs.step)>(60*15)))
       gs.acc=gs.step*2;
 
+    var progress=timestamp/100;
+
     // Process "steps" since last call
     while (gs.acc>gs.step)
     {
@@ -44,7 +46,7 @@ function rafcallback(timestamp)
     }
 
     // Render the game world
-    gs.svg.render();
+    gs.svg.render(progress);
   }
 
   // Remember when we were last called
@@ -57,6 +59,7 @@ function rafcallback(timestamp)
 // Handle resize events
 function playfieldsize()
 {
+  gs.svg.resize();
 }
 
 // Entry point
@@ -65,10 +68,7 @@ function init()
   // Set up game state
   gs.svg.init();
 
-  window.addEventListener("resize", function()
-  {
-    playfieldsize();
-  });
+  window.addEventListener("resize", function() { playfieldsize(); });
 
   playfieldsize();
 
