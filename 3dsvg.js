@@ -57,6 +57,10 @@ class svg3d
     // 2D cursor
     this.cx=0;
     this.cy=0;
+
+    // Lighting
+    this.ambient=0.08;
+    this.intensity=0.7;
   }
 
   // Generate 3D translation matrix from x/y/z rotation values
@@ -205,8 +209,6 @@ class svg3d
   var azs=[];
 
   var shade=0;
-  var ambient=0.08;
-  var intensity=0.7;
 
   if (face.length==2)
   {
@@ -258,8 +260,8 @@ class svg3d
     if (poly.zmin>-this.f)
     {
       // Calculate a shade value (percent of face colour)
-      shade=this.calcshade([axs[0],ays[0],azs[0]], [axs[1],ays[1],azs[1]], [axs[2],ays[2],azs[2]])*intensity;
-      shade+=ambient;
+      shade=this.calcshade([axs[0],ays[0],azs[0]], [axs[1],ays[1],azs[1]], [axs[2],ays[2],azs[2]])*this.intensity;
+      shade+=this.ambient;
 
       // Clamp to 0..100%
       if (shade<0) shade=0;
