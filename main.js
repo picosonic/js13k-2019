@@ -9,6 +9,9 @@ var gs={
 
   // SVG interface
   svg:new svg3d(),
+
+  // Active 3D models
+  activemodels:[]
 };
 
 function updatetime()
@@ -62,6 +65,53 @@ function playfieldsize()
   gs.svg.resize();
 }
 
+// Scan for any connected gamepads
+function gamepadscan()
+{
+  var gamepads=navigator.getGamepads();
+
+  for (var padid=0; padid<gamepads.length; padid++)
+  {
+    if (gamepads[padid] && gamepads[padid].connected)
+    {
+      if ((gamepads[padid].id=="054c-0268-Sony PLAYSTATION(R)3 Controller") || (gamepads[padid].id=="054c-05c4-Sony Computer Entertainment Wireless Controller"))
+      {
+        for (var i=0; i<gamepads[padid].axes.length; i++)
+        {
+          var val=gamepads[padid].axes[i];
+
+          if (i==0)
+            gs.svg.tranx-=val*4;
+
+          if (i==1)
+            gs.svg.tranz+=val*4;
+
+          if (i==4)
+            gs.svg.rotz+=val*4;
+
+          if (i==3)
+            gs.svg.trany+=val*4;
+
+          if (gs.svg.rotx<0) gs.svg.rotx=360+gs.svg.rotx;
+          if (gs.svg.roty<0) gs.svg.roty=360+gs.svg.roty;
+          if (gs.svg.rotz<0) gs.svg.rotz=360+gs.svg.rotz;
+
+          if (gs.svg.rotx>360) gs.svg.rotx-=360;
+          if (gs.svg.roty>360) gs.svg.roty-=360;
+          if (gs.svg.rotz>360) gs.svg.rotz-=360;
+        }
+      }
+    }
+  }
+
+  window.requestAnimationFrame(gamepadscan);
+}
+
+function clone(obj)
+{
+  return JSON.parse(JSON.stringify(obj));
+}
+
 // Entry point
 function init()
 {
@@ -72,7 +122,22 @@ function init()
 
   playfieldsize();
 
-  setInterval(function(){ updatetime(); }, 1000);
+  // Temporary clock
+//  setInterval(function(){ updatetime(); }, 1000);
+
+  gs.activemodels[0]=clone(models[0]);
+  gs.activemodels[0].x=0;
+  gs.activemodels[0].y=0;
+  gs.activemodels[0].z=0;
+
+  gs.activemodels[1]=clone(models[0]);
+  gs.activemodels[1].x=200;
+  gs.activemodels[1].y=200;
+  gs.activemodels[1].z=200;
+
+  // Gamepad support
+  if (!!(navigator.getGamepads))
+    window.requestAnimationFrame(gamepadscan);
 
   // Start the game running
   window.requestAnimationFrame(rafcallback);

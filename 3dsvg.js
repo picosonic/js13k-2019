@@ -61,6 +61,7 @@ class svg3d
     // Lighting
     this.ambient=0.08;
     this.intensity=0.7;
+    this.lightpos={x:0, y:0, z:-600};
   }
 
   // Generate 3D translation matrix from x/y/z rotation values
@@ -163,12 +164,11 @@ class svg3d
   calcshade(v1, v2, v3)
   {
     var norm=this.calcnormal(v1, v2, v3);
-    var lightpos={x:0, y:0, z:-600};
     var len=0;
     var lightdir={
-      x:lightpos.x-v1[0],
-      y:lightpos.y-v1[1],
-      z:lightpos.z-v1[2]
+      x:this.lightpos.x+this.tranx-v1[0],
+      y:this.lightpos.y+this.trany-v1[1],
+      z:this.lightpos.z+this.tranz-v1[2]
     };
 
     // Normalise norm
@@ -316,10 +316,12 @@ class svg3d
     var polys=[];
 
     // Initialise rotation
-    this.initrotation(2.5+progress, 3.01+progress, 2.95+progress);
+    this.initrotation(this.rotx, this.roty, this.rotz);
 
-    // Find polygons from visible objects
-    polys=polys.concat(this.drawobj(models[0], 0, 0, 0));
+    // Find polygons from active objects
+    gs.activemodels.forEach(function (item, index) {
+      polys=polys.concat(this.drawobj(item, item.x, item.y, item.z));
+    }, this);
 
     // Update the SVG with the new frame
     this.svgobj.innerHTML=this.renderobjs(polys);
