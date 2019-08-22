@@ -198,86 +198,87 @@ class svg3d
 
   draw3dpoly(mesh, face, vs, p, mx, my, mz)
   {
-  var lobj='<polygon points="';
-  var poly={zmin:0,zmax:0,obj:""};
-  var zds=[];
-  var xs=[];
-  var ys=[];
-  var zs=[];
-  var axs=[];
-  var ays=[];
-  var azs=[];
+    var lobj='<polygon points="';
+    var poly={zmin:0,zmax:0,obj:""};
+    var zds=[];
+    var xs=[];
+    var ys=[];
+    var zs=[];
+    var axs=[];
+    var ays=[];
+    var azs=[];
 
-  var shade=0;
+    var shade=0;
 
-  if (face.length==2)
-  {
-    lobj='<line ';
-
-    this.move3d(mx+(mesh.v[face[0]-1][0]*vs),my+(mesh.v[face[0]-1][1]*vs),mz+(mesh.v[face[0]-1][2]*vs));
-    lobj+='x1="'+this.cx+'" y1="'+this.cy+'" ';
-    zds.push(this.z);
-
-    this.move3d(mx+(mesh.v[face[1]-1][0]*vs),my+(mesh.v[face[1]-1][1]*vs),mz+(mesh.v[face[1]-1][2]*vs));
-    lobj+='x2="'+this.cx+'" y2="'+this.cy+'"  class="line3d"/>';
-
-    zds.push(this.z);
-
-    // Determine further point in Z buffer
-    poly.zmax=Math.max(...zds);
-    poly.zmin=Math.min(...zds);
-
-    poly.obj=lobj;
-
-    return poly;
-  }
-
-  // Iterate through vertices for face
-  for (var fv=0; fv<face.length; fv++)
-  {
-    xs[fv]=mx+(mesh.v[face[fv]-1][0]*vs);
-    ys[fv]=my+(mesh.v[face[fv]-1][1]*vs);
-    zs[fv]=mz+(mesh.v[face[fv]-1][2]*vs);
-
-    this.move3d(xs[fv], ys[fv], zs[fv]);
-    axs[fv]=this.cx; ays[fv]=this.cy; azs[fv]=this.z;
-    zds.push(this.z);
-
-    // Serialize 2d vertex position to SVG polygon
-    lobj+=this.cx+','+this.cy+' ';
-  }
-
-  var nz=((axs[0]-axs[1])*(ays[2]-ays[1])) - ((ays[0]-ays[1])*(axs[2]-axs[1]));
-
-  // Determine if back face
-  if (nz>=0)
-  {
-    // Determine furthest points in Z buffer
-    poly.zmax=Math.max(...zds);
-    poly.zmin=Math.min(...zds);
-
-    // Determine if behind viewer
-    if (poly.zmin>-this.f)
+    // Draw lines
+    if (face.length==2)
     {
-      // Calculate a shade value (percent of face colour)
-      shade=this.calcshade([axs[0],ays[0],azs[0]], [axs[1],ays[1],azs[1]], [axs[2],ays[2],azs[2]])*this.intensity;
-      shade+=this.ambient;
+      lobj='<line ';
 
-      // Clamp to 0..100%
-      if (shade<0) shade=0;
-      if (shade>1) shade=1;
+      this.move3d(mx+(mesh.v[face[0]-1][0]*vs),my+(mesh.v[face[0]-1][1]*vs),mz+(mesh.v[face[0]-1][2]*vs));
+      lobj+='x1="'+this.cx+'" y1="'+this.cy+'" ';
+      zds.push(this.z);
 
-      var rgbstr=Math.floor(palette[p][0]*shade)+','+Math.floor(palette[p][1]*shade)+','+Math.floor(palette[p][2]*shade);
+      this.move3d(mx+(mesh.v[face[1]-1][0]*vs),my+(mesh.v[face[1]-1][1]*vs),mz+(mesh.v[face[1]-1][2]*vs));
+      lobj+='x2="'+this.cx+'" y2="'+this.cy+'"  class="line3d"/>';
 
-      // Serialize fill colour and close SVG polygon
-      lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
+      zds.push(this.z);
+
+      // Determine further point in Z buffer
+      poly.zmax=Math.max(...zds);
+      poly.zmin=Math.min(...zds);
 
       poly.obj=lobj;
-    }
-  }
 
-  return poly;
-}  
+      return poly;
+    }
+
+    // Iterate through vertices for face
+    for (var fv=0; fv<face.length; fv++)
+    {
+      xs[fv]=mx+(mesh.v[face[fv]-1][0]*vs);
+      ys[fv]=my+(mesh.v[face[fv]-1][1]*vs);
+      zs[fv]=mz+(mesh.v[face[fv]-1][2]*vs);
+
+      this.move3d(xs[fv], ys[fv], zs[fv]);
+      axs[fv]=this.cx; ays[fv]=this.cy; azs[fv]=this.z;
+      zds.push(this.z);
+
+      // Serialize 2d vertex position to SVG polygon
+      lobj+=this.cx+','+this.cy+' ';
+    }
+
+    var nz=((axs[0]-axs[1])*(ays[2]-ays[1])) - ((ays[0]-ays[1])*(axs[2]-axs[1]));
+
+    // Determine if back face
+    if (nz>=0)
+    {
+      // Determine furthest points in Z buffer
+      poly.zmax=Math.max(...zds);
+      poly.zmin=Math.min(...zds);
+
+      // Determine if behind viewer
+      if (poly.zmin>-this.f)
+      {
+        // Calculate a shade value (percent of face colour)
+        shade=this.calcshade([axs[0],ays[0],azs[0]], [axs[1],ays[1],azs[1]], [axs[2],ays[2],azs[2]])*this.intensity;
+        shade+=this.ambient;
+
+        // Clamp to 0..100%
+        if (shade<0) shade=0;
+        if (shade>1) shade=1;
+
+        var rgbstr=Math.floor(palette[p][0]*shade)+','+Math.floor(palette[p][1]*shade)+','+Math.floor(palette[p][2]*shade);
+
+        // Serialize fill colour and close SVG polygon
+        lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
+
+        poly.obj=lobj;
+      }
+    }
+
+    return poly;
+  }  
 
   drawobj(mesh, mx, my, mz)
   {
