@@ -43,7 +43,8 @@ class svg3d
     this.tranz=0;
 
     // 3D to 2D coord cache
-    this.d=[]; // Conversion matrix
+    this.d=[]; // World conversion matrix
+    this.m=[]; // Model conversion matrix
     this.x=0;
     this.y=0;
     this.z=0;
@@ -64,7 +65,7 @@ class svg3d
     this.lightpos={x:0, y:0, z:-600};
   }
 
-  // Generate 3D translation matrix from x/y/z rotation values
+  // Generate 3D world translation matrix from x/y/z rotation values
   initrotation(aa, bb, cc)
   {
     var a=PIOVER180*(aa);
@@ -84,6 +85,28 @@ class svg3d
     this.d[1]=Math.sin(c);
     this.d[2]=-this.d[1];
     this.d[3]=this.d[0];
+  }
+
+  // Generate 3D model translation matrix from x/y/z rotation values
+  initmodelrotation(aa, bb, cc)
+  {
+    var a=PIOVER180*(aa);
+    this.m[4]=Math.cos(a);
+    this.m[5]=Math.sin(a);
+    this.m[6]=-this.m[5];
+    this.m[7]=this.m[4];
+
+    var b=PIOVER180*(bb);
+    this.m[8]=Math.cos(b);
+    this.m[9]=Math.sin(b);
+    this.m[10]=-this.m[9];
+    this.m[11]=this.m[8];
+
+    var c=PIOVER180*(cc);
+    this.m[0]=Math.cos(c);
+    this.m[1]=Math.sin(c);
+    this.m[2]=-this.m[1];
+    this.m[3]=this.m[0];
   }
 
   // Convert 3d x,y,z into 2d x,y
@@ -116,6 +139,27 @@ class svg3d
 
     // move 2d origin to centre of screen
     this.y+=(this.ymax/2); this.x+=(this.xmax/2);
+  }
+
+  // Rotate vertex model space
+  rotatevertex(x, y, z)
+  {
+    // roll - longitudinal axis (Z)
+    var xs=x; // Save x
+    x=(xs*this.m[4])+(y*this.m[6]);
+    y=(xs*this.m[5])+(y*this.m[7]);
+
+    // yaw - vertical axis (Y)
+    xs=x; // Save x
+    x=(xs*this.m[8])+(z*this.m[10]);
+    z=(xs*this.m[9])+(z*this.m[11]);
+
+    // pitch - transverse axis (X)
+    var ys=y; // Save y
+    y=(ys*this.m[0])+(z*this.m[2]);
+    z=(ys*this.m[1])+(z*this.m[3]);
+
+    return [x, y, z];
   }
 
   // Move 2d cursor to 3d coordinate
@@ -236,9 +280,10 @@ class svg3d
     // Iterate through vertices for face
     for (var fv=0; fv<face.length; fv++)
     {
-      xs[fv]=mx+(mesh.v[face[fv]-1][0]*vs);
-      ys[fv]=my+(mesh.v[face[fv]-1][1]*vs);
-      zs[fv]=mz+(mesh.v[face[fv]-1][2]*vs);
+      var rv=this.rotatevertex(mesh.v[face[fv]-1][0], mesh.v[face[fv]-1][1], mesh.v[face[fv]-1][2]);
+      xs[fv]=mx+(rv[0]*vs);
+      ys[fv]=my+(rv[1]*vs);
+      zs[fv]=mz+(rv[2]*vs);
 
       this.move3d(xs[fv], ys[fv], zs[fv]);
       axs[fv]=this.cx; ays[fv]=this.cy; azs[fv]=this.z;
@@ -280,10 +325,15 @@ class svg3d
     return poly;
   }  
 
-  drawobj(mesh, mx, my, mz)
+  drawobj(mesh)
   {
     var polys=[];
     var norms=[];
+    var mx=mesh.x;
+    var my=mesh.y;
+    var mz=mesh.z;
+
+    this.initmodelrotation(mesh.rotx, mesh.roty, mesh.rotz);
 
     // Iterate through object faces
     mesh.f.forEach(function (item, index) {
@@ -315,12 +365,15 @@ class svg3d
   {
     var polys=[];
 
-    // Initialise rotation
+    // Initialise world rotation
     this.initrotation(this.rotx, this.roty, this.rotz);
+
+    gs.activemodels[0].rotx+=(progress/100);
+    gs.activemodels[1].roty+=(progress/100);
 
     // Find polygons from active objects
     gs.activemodels.forEach(function (item, index) {
-      polys=polys.concat(this.drawobj(item, item.x, item.y, item.z));
+      polys=polys.concat(this.drawobj(item));
     }, this);
 
     // Update the SVG with the new frame
