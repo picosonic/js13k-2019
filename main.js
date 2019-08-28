@@ -35,6 +35,13 @@ function updateposition()
 function update()
 {
   updateposition();
+
+  // Move object by velocity (if required)
+  gs.activemodels.forEach(function (item, index) {
+    if (item.vx!=0) item.x+=item.vx;
+    if (item.vy!=0) item.y+=item.vy;
+    if (item.vz!=0) item.z+=item.vz;
+  });
 }
 
 // Request animation frame callback
@@ -140,13 +147,20 @@ function addmodel(model, x, y, z, rotx, roty, rotz)
 
   obj.id=uuidv4();
 
+  // Translation
   obj.x=x;
   obj.y=y;
   obj.z=z;
 
+  // Rotation
   obj.rotx=rotx;
   obj.roty=roty;
   obj.rotz=rotz;
+
+  // Velocity
+  obj.vx=0;
+  obj.vy=0;
+  obj.vz=0;
 
   gs.activemodels.push(obj);
 }
