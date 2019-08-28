@@ -21,9 +21,20 @@ function updatetime()
   writeseg(gs.svg.svghud, 250, 250, d.toLocaleTimeString(), "gold");
 }
 
+function updateposition()
+{
+  var dbg="";
+
+  dbg+="X:"+Math.floor(gs.svg.tranx)+" Y:"+Math.floor(gs.svg.trany)+" Z:"+Math.floor(gs.svg.tranz)+"<br/>";
+  dbg+="RX:"+Math.floor(gs.svg.rotx)+" RY:"+Math.floor(gs.svg.roty)+" RZ:"+Math.floor(gs.svg.rotz);
+
+  document.getElementById("debug").innerHTML=dbg;
+}
+
 // Update the game world state
 function update()
 {
+  updateposition();
 }
 
 // Request animation frame callback
