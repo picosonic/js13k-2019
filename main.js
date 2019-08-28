@@ -178,8 +178,11 @@ function init()
   // Temporary clock
 //  setInterval(function(){ updatetime(); }, 1000);
 
-  addmodel(models[0], 0, 0, 0, 0, 0, 0);
-  addmodel(models[0], 200, 200, 200, 10, 10, 10);
+  addmodel(models[0], -5, -5, -5, 0, 0, 0);
+  addmodel(models[0], -200, -200, -200, 10, 10, 10);
+
+  gs.activemodels[0].vy=1;
+  gs.activemodels[0].vz=-10;
 
   // Gamepad support
   if (!!(navigator.getGamepads))

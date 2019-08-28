@@ -34,7 +34,7 @@ class svg3d
 
     // World rotation in degrees
     this.rotx=0;
-    this.roty=0;
+    this.roty=180;
     this.rotz=0;
 
     // World translation in pixels
@@ -62,7 +62,7 @@ class svg3d
     // Lighting
     this.ambient=0.08;
     this.intensity=0.7;
-    this.lightpos={x:0, y:0, z:-600};
+    this.lightpos={x:0, y:600, z:600};
   }
 
   // Generate 3D world translation matrix from x/y/z rotation values
@@ -116,7 +116,7 @@ class svg3d
     this.x*=this.vscale; this.y*=this.vscale; this.z*=this.vscale;
 
     this.y*=-1; // flip y
-    this.z*=-1; // flip z
+//    this.z*=-1; // flip z
 
     // roll - longitudinal axis (Z)
     var xs=this.x; // Save x
@@ -296,7 +296,7 @@ class svg3d
     var nz=((axs[0]-axs[1])*(ays[2]-ays[1])) - ((ays[0]-ays[1])*(axs[2]-axs[1]));
 
     // Determine if back face
-    if (nz>=0)
+    if (nz<0)
     {
       // Determine furthest points in Z buffer
       poly.zmax=Math.max(...zds);
@@ -352,8 +352,8 @@ class svg3d
   {
     var svgtxt="";
 
-    // Order faces by z such that largest z gets rendered first
-    polys.sort(function(a,b){return b.zmax-a.zmax});
+    // Order faces by z such that smallest z gets rendered first
+    polys.sort(function(a,b){return a.zmin-b.zmin});
 
     // Serialise polys
     polys.forEach(function(item, index){svgtxt+=item.obj});
@@ -367,9 +367,6 @@ class svg3d
 
     // Initialise world rotation
     this.initrotation(this.rotx, this.roty, this.rotz);
-
-    gs.activemodels[0].rotx+=(progress/100);
-    gs.activemodels[1].roty+=(progress/100);
 
     // Find polygons from active objects
     gs.activemodels.forEach(function (item, index) {
