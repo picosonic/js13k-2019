@@ -243,7 +243,7 @@ class svg3d
   draw3dpoly(mesh, face, vs, p, mx, my, mz)
   {
     var lobj='<polygon points="';
-    var poly={zmin:0,zmax:0,obj:""};
+    var poly={zmin:0,zmax:0,zavg:0,obj:""};
     var zds=[];
     var xs=[];
     var ys=[];
@@ -271,6 +271,7 @@ class svg3d
       // Determine further point in Z buffer
       poly.zmax=Math.max(...zds);
       poly.zmin=Math.min(...zds);
+      poly.zavg=poly.zmin+((poly.zmax-poly.zmin)/2);
 
       poly.obj=lobj;
 
@@ -301,6 +302,7 @@ class svg3d
       // Determine furthest points in Z buffer
       poly.zmax=Math.max(...zds);
       poly.zmin=Math.min(...zds);
+      poly.zavg=poly.zmin+((poly.zmax-poly.zmin)/2);
 
       // Determine if behind viewer
       if (poly.zmin>-this.f)
@@ -352,8 +354,8 @@ class svg3d
   {
     var svgtxt="";
 
-    // Order faces by z such that smallest z gets rendered first
-    polys.sort(function(a,b){return a.zmin-b.zmin});
+    // Order faces by z such that smallest average z gets rendered first
+    polys.sort(function(a,b){return a.zavg-b.zavg});
 
     // Serialise polys
     polys.forEach(function(item, index){svgtxt+=item.obj});
