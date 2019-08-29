@@ -158,17 +158,23 @@ function gamepadscan()
         {
           var val=gamepads[padid].axes[i];
 
-          if (i==0)
-            gs.svg.tranx-=val*4;
+          if (i==0) // Yaw - Turn L/R
+            gs.svg.roty+=val*2;
 
-          if (i==1)
-            gs.svg.tranz+=val*4;
+          if (i==1) // Pitch - F/B
+          {
+            gs.svg.tranx+=(val*16)*Math.sin(gs.svg.roty*PIOVER180);
+            gs.svg.tranz+=(val*16)*Math.cos(gs.svg.roty*PIOVER180);
+          }
 
-          if (i==4)
-            gs.svg.rotz+=val*4;
+          if (i==3) // Roll - Sidestep L/R
+          {
+            gs.svg.tranx-=(val*16)*Math.sin((gs.svg.roty+90)*PIOVER180);
+            gs.svg.tranz-=(val*16)*Math.cos((gs.svg.roty+90)*PIOVER180);
+          }
 
-          if (i==3)
-            gs.svg.trany+=val*4;
+          if (i==4) // Collective
+            gs.svg.trany+=val*16;
 
           if (gs.svg.rotx<0) gs.svg.rotx=360+gs.svg.rotx;
           if (gs.svg.roty<0) gs.svg.roty=360+gs.svg.roty;
