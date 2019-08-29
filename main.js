@@ -272,6 +272,11 @@ function init()
           0);
     }
 
+  // Test velocity
+  gs.activemodels[1].vx=0;
+  gs.activemodels[1].vy=0;
+  gs.activemodels[1].vz=-10;
+
   // Start the game running
   window.requestAnimationFrame(rafcallback);
 }
