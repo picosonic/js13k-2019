@@ -74,6 +74,10 @@ function rafcallback(timestamp)
 
     var progress=timestamp/100;
 
+    // Gamepad support
+    if (!!(navigator.getGamepads))
+      gamepadscan();
+
     // Process "steps" since last call
     while (gs.acc>gs.step)
     {
@@ -177,8 +181,6 @@ function gamepadscan()
       }
     }
   }
-
-  window.requestAnimationFrame(gamepadscan);
 }
 
 // Deep clone an object
@@ -250,10 +252,6 @@ function init()
   gs.player=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
   addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
   addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
-
-  // Gamepad support
-  if (!!(navigator.getGamepads))
-    window.requestAnimationFrame(gamepadscan);
 
   // Start the game running
   window.requestAnimationFrame(rafcallback);
