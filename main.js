@@ -16,6 +16,9 @@ var gs={
 
   // Characters
   player:null,
+  leanx:0,
+  leany:0,
+  leanz:0,
 
   randoms:new randomizer(3,6,6,4)
 };
@@ -48,6 +51,11 @@ function update()
   gs.activemodels[gs.player].rotx=-gs.svg.rotx;
   gs.activemodels[gs.player].roty=-gs.svg.roty;
   gs.activemodels[gs.player].rotz=-gs.svg.rotz;
+
+  // Update player angle
+  gs.activemodels[gs.player].rotx+=gs.leanx;
+  gs.activemodels[gs.player].roty+=gs.leany;
+  gs.activemodels[gs.player].rotz+=gs.leanz;
 
   updateposition();
 
@@ -159,7 +167,11 @@ function gamepadscan()
           var val=gamepads[padid].axes[i];
 
           if (i==0) // Yaw - Turn L/R
+          {
             gs.svg.roty+=val*2;
+            gs.leanx=(-val*50) % 360;
+            gs.leany=(-val*50) % 360;
+          }
 
           if (i==1) // Pitch - F/B
           {
@@ -176,6 +188,7 @@ function gamepadscan()
           if (i==4) // Collective
             gs.svg.trany+=val*16;
 
+          // Prevent angle over/underflow
           if (gs.svg.rotx<0) gs.svg.rotx=360+gs.svg.rotx;
           if (gs.svg.roty<0) gs.svg.roty=360+gs.svg.roty;
           if (gs.svg.rotz<0) gs.svg.rotz=360+gs.svg.rotz;
