@@ -259,6 +259,19 @@ function init()
   addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
   addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
 
+  for (var y=0; y<10; y++)
+    for (var x=0; x<10; x++)
+    {
+      if (gs.randoms.rnd(10)<5)
+        addnamedmodel("tree",
+          ((x-5)*gs.terrain.tilesize)*gs.terrain.s,
+          (((4+gs.terrain.heightmap[(y*gs.terrain.w)+x])*gs.terrain.s)),
+          0-(((y)*gs.terrain.tilesize)*gs.terrain.s),
+          0,
+          gs.randoms.rnd(90),
+          0);
+    }
+
   // Start the game running
   window.requestAnimationFrame(rafcallback);
 }
