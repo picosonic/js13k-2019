@@ -1,0 +1,9 @@
+{
+  "name": "BACKSPACE - Return to planet Figadore",
+  "description": "Oh no, Fred has been kidnapped on planet Figadore in the Hercules cluster. Play as his sister Jade and battle the invaders as you race back to rescue him.",
+  "images" :
+  {
+    "image_large": "image-big.jpg",
+    "image_thumbnail": "image-small.jpg"
+  }
+}
