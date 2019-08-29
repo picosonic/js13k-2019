@@ -2,10 +2,16 @@
 
 // Game state
 var gs={
-  // animation frame of reference
+  // Animation frame of reference
   step:(1/60), // target step time @ 60 fps
   acc:0, // accumulated time since last frame
   lasttime:0, // time of last frame
+
+  // Control state
+  gamepad:-1,
+  gamepadbuttons:[], // Button mapping
+  gamepadaxes:[], // Axes mapping
+  gamepadaxesval:[], // Axes values
 
   // SVG interface
   svg:new svg3d(),
@@ -15,7 +21,7 @@ var gs={
   terrain:{},
 
   // Characters
-  player:null,
+  player:{id:null, keystate:0, padstate:0}, // input bitfield [action][down][right][up][left]
   leanx:0,
   leany:0,
   leanz:0,
@@ -35,27 +41,134 @@ function updateposition()
   var dbg="";
 
   dbg+="X:"+Math.floor(gs.svg.tranx)+" Y:"+Math.floor(gs.svg.trany)+" Z:"+Math.floor(gs.svg.tranz)+"<br/>";
-  dbg+="RX:"+Math.floor(gs.svg.rotx)+" RY:"+Math.floor(gs.svg.roty)+" RZ:"+Math.floor(gs.svg.rotz);
+  dbg+="RX:"+Math.floor(gs.svg.rotx)+" RY:"+Math.floor(gs.svg.roty)+" RZ:"+Math.floor(gs.svg.rotz)+"<br/>";
+  dbg+="KEY:"+gs.player.keystate;
+  if (gs.gamepad!=-1) dbg+=" PAD:"+gs.player.padstate;
 
   document.getElementById("debug").innerHTML=dbg;
+}
+
+// Clear both keyboard and gamepad input state
+function clearinputstate(character)
+{
+  character.keystate=0;
+  character.padstate=0;
+}
+
+// Check if an input is set in either keyboard or gamepad input state
+function ispressed(character, keybit)
+{
+  return (((character.keystate&keybit)!=0) || ((character.padstate&keybit)!=0));
+}
+
+// Update the position of players/enemies
+function updatemovements(character)
+{
+  // Move player when a key is pressed
+  if ((character.keystate!=0) || (character.padstate!=0))
+  {
+    var val=0;
+
+    // Left key
+    if ((ispressed(character, 1)) && (!ispressed(character, 4)))
+    {
+      if ((character.padstate&1)!=0)
+        val=gs.gamepadaxesval[0];
+      else
+        val=-1;
+
+      // Yaw - Turn L/R
+      gs.svg.roty+=val*2;
+      gs.leanx=-val*50;
+      gs.leany=-val*50;
+    }
+
+    // Right key
+    if ((ispressed(character, 4)) && (!ispressed(character, 1)))
+    {
+      if ((character.padstate&4)!=0)
+        val=gs.gamepadaxesval[0];
+      else
+        val=1;
+
+      // Yaw - Turn L/R
+      gs.svg.roty+=val*2;
+      gs.leanx=-val*50;
+      gs.leany=-val*50;
+    }
+
+    // Up key
+    if ((ispressed(character, 2)) && (!ispressed(character, 8)))
+    {
+      if ((character.padstate&2)!=0)
+        val=gs.gamepadaxesval[1];
+      else
+        val=-1;
+
+      // Pitch - F/B
+      gs.svg.tranx+=(val*36)*Math.sin(gs.svg.roty*PIOVER180);
+      gs.svg.tranz+=(val*36)*Math.cos(gs.svg.roty*PIOVER180);
+    }
+
+    // Down key
+    if ((ispressed(character, 8)) && (!ispressed(character, 2)))
+    {
+      if ((character.padstate&8)!=0)
+        val=gs.gamepadaxesval[1];
+      else
+        val=1;
+
+      // Pitch - F/B
+      gs.svg.tranx+=(val*16)*Math.sin(gs.svg.roty*PIOVER180);
+      gs.svg.tranz+=(val*16)*Math.cos(gs.svg.roty*PIOVER180);
+    }
+
+/*
+    // Roll - Sidestep L/R
+    gs.svg.tranx-=(val*16)*Math.sin((gs.svg.roty+90)*PIOVER180);
+    gs.svg.tranz-=(val*16)*Math.cos((gs.svg.roty+90)*PIOVER180);
+
+    // Collective
+    gs.svg.trany+=val*16;
+*/
+
+    // Prevent angle over/underflow
+    if (gs.svg.rotx<0) gs.svg.rotx=360+gs.svg.rotx;
+    if (gs.svg.roty<0) gs.svg.roty=360+gs.svg.roty;
+    if (gs.svg.rotz<0) gs.svg.rotz=360+gs.svg.rotz;
+
+    if (gs.svg.rotx>360) gs.svg.rotx-=360;
+    if (gs.svg.roty>360) gs.svg.roty-=360;
+    if (gs.svg.rotz>360) gs.svg.rotz-=360;
+  }
+
+  // Do a dampened lean return
+  if (gs.leanx>0) gs.leanx-=gs.leanx>5?5:1;
+  if (gs.leanx<0) gs.leanx+=gs.leanx<-5?5:1;
+
+  if (gs.leany>0) gs.leany-=gs.leany>5?5:1;
+  if (gs.leany<0) gs.leany+=gs.leany<-5?5:1;
 }
 
 // Update the game world state
 function update()
 {
-  // Keep player in view
-  gs.activemodels[gs.player].x=-gs.svg.tranx;
-  gs.activemodels[gs.player].y=-gs.svg.trany;
-  gs.activemodels[gs.player].z=-gs.svg.tranz;
+  // Apply keystate to player
+  updatemovements(gs.player);
 
-  gs.activemodels[gs.player].rotx=-gs.svg.rotx;
-  gs.activemodels[gs.player].roty=-gs.svg.roty;
-  gs.activemodels[gs.player].rotz=-gs.svg.rotz;
+  // Keep player in view
+  gs.activemodels[gs.player.id].x=-gs.svg.tranx;
+  gs.activemodels[gs.player.id].y=-gs.svg.trany;
+  gs.activemodels[gs.player.id].z=-gs.svg.tranz;
+
+  gs.activemodels[gs.player.id].rotx=-gs.svg.rotx;
+  gs.activemodels[gs.player.id].roty=-gs.svg.roty;
+  gs.activemodels[gs.player.id].rotz=-gs.svg.rotz;
 
   // Update player angle
-  gs.activemodels[gs.player].rotx+=gs.leanx;
-  gs.activemodels[gs.player].roty+=gs.leany;
-  gs.activemodels[gs.player].rotz+=gs.leanz;
+  gs.activemodels[gs.player.id].rotx+=gs.leanx;
+  gs.activemodels[gs.player.id].roty+=gs.leany;
+  gs.activemodels[gs.player.id].rotz+=gs.leanz;
 
   updateposition();
 
@@ -155,50 +268,211 @@ function generateterrain(gridx, gridy, gridsize)
 function gamepadscan()
 {
   var gamepads=navigator.getGamepads();
+  var found=0;
+
+  var gleft=false;
+  var gright=false;
+  var gup=false;
+  var gdown=false;
+  var gjump=false;
 
   for (var padid=0; padid<gamepads.length; padid++)
   {
-    if (gamepads[padid] && gamepads[padid].connected)
+    // Only support first found gamepad
+    if ((found==0) && (gamepads[padid] && gamepads[padid].connected))
     {
-      if ((gamepads[padid].id=="054c-0268-Sony PLAYSTATION(R)3 Controller") || (gamepads[padid].id=="054c-05c4-Sony Computer Entertainment Wireless Controller"))
+      found++;
+
+      // If we don't already have this one, add mapping for it
+      if (gs.gamepad!=padid)
       {
-        for (var i=0; i<gamepads[padid].axes.length; i++)
+        console.log("Found new gamepad "+padid+" '"+gamepads[padid].id+"'");
+
+        gs.gamepad=padid;
+
+        if (gamepads[padid].mapping==="standard")
         {
-          var val=gamepads[padid].axes[i];
+          gs.gamepadbuttons[0]=14; // left (left) d-left
+          gs.gamepadbuttons[1]=15; // right (left) d-right
+          gs.gamepadbuttons[2]=12; // top (left) d-up
+          gs.gamepadbuttons[3]=13; // bottom (left) d-down
+          gs.gamepadbuttons[4]=0;  // bottom button (right) x
 
-          if (i==0) // Yaw - Turn L/R
-          {
-            gs.svg.roty+=val*2;
-            gs.leanx=(-val*50) % 360;
-            gs.leany=(-val*50) % 360;
-          }
+          gs.gamepadaxes[0]=0; // left/right axis
+          gs.gamepadaxes[1]=1; // up/down axis
+          gs.gamepadaxes[2]=2; // cam left/right axis
+          gs.gamepadaxes[3]=3; // cam up/down axis
+        }
+        else
+        if (gamepads[padid].id=="054c-0268-Sony PLAYSTATION(R)3 Controller")
+        {
+          // PS3
+          gs.gamepadbuttons[0]=15; // left (left) d-left
+          gs.gamepadbuttons[1]=16; // right (left) d-right
+          gs.gamepadbuttons[2]=13; // top (left) d-up
+          gs.gamepadbuttons[3]=14; // bottom (left) d-down
+          gs.gamepadbuttons[4]=0;  // bottom button (right) x
 
-          if (i==1) // Pitch - F/B
-          {
-            gs.svg.tranx+=(val*16)*Math.sin(gs.svg.roty*PIOVER180);
-            gs.svg.tranz+=(val*16)*Math.cos(gs.svg.roty*PIOVER180);
-          }
+          gs.gamepadaxes[0]=0; // left/right axis
+          gs.gamepadaxes[1]=1; // up/down axis
+          gs.gamepadaxes[2]=3; // cam left/right axis
+          gs.gamepadaxes[3]=4; // cam up/down axis
+        }
+        else
+        if (gamepads[padid].id=="045e-028e-Microsoft X-Box 360 pad")
+        {
+          // XBOX 360
+          gs.gamepadbuttons[0]=-1; // left (left) d-left
+          gs.gamepadbuttons[1]=-1; // right (left) d-right
+          gs.gamepadbuttons[2]=-1; // top (left) d-up
+          gs.gamepadbuttons[3]=-1; // bottom (left) d-down
+          gs.gamepadbuttons[4]=0;  // bottom button (right) x
 
-          if (i==3) // Roll - Sidestep L/R
-          {
-            gs.svg.tranx-=(val*16)*Math.sin((gs.svg.roty+90)*PIOVER180);
-            gs.svg.tranz-=(val*16)*Math.cos((gs.svg.roty+90)*PIOVER180);
-          }
+          gs.gamepadaxes[0]=6; // left/right axis
+          gs.gamepadaxes[1]=7; // up/down axis
+          gs.gamepadaxes[2]=3; // cam left/right axis
+          gs.gamepadaxes[3]=4; // cam up/down axis
+        }
+        else
+        if (gamepads[padid].id=="0f0d-00c1-  Switch Controller")
+        {
+          // Nintendo Switch
+          gs.gamepadbuttons[0]=-1; // left (left) d-left
+          gs.gamepadbuttons[1]=-1; // right (left) d-right
+          gs.gamepadbuttons[2]=-1; // top (left) d-up
+          gs.gamepadbuttons[3]=-1; // bottom (left) d-down
+          gs.gamepadbuttons[4]=1;  // bottom button (right) x
 
-          if (i==4) // Collective
-            gs.svg.trany+=val*16;
+          gs.gamepadaxes[0]=4; // left/right axis
+          gs.gamepadaxes[1]=5; // up/down axis
+          gs.gamepadaxes[2]=2; // cam left/right axis
+          gs.gamepadaxes[3]=3; // cam up/down axis
+        }
+        else
+        if (gamepads[padid].id=="054c-05c4-Sony Computer Entertainment Wireless Controller")
+        {
+          // PS4
+          gs.gamepadbuttons[0]=-1; // left (left) d-left
+          gs.gamepadbuttons[1]=-1; // right (left) d-right
+          gs.gamepadbuttons[2]=-1; // top (left) d-up
+          gs.gamepadbuttons[3]=-1; // bottom (left) d-down
+          gs.gamepadbuttons[4]=0;  // bottom button (right) x
 
-          // Prevent angle over/underflow
-          if (gs.svg.rotx<0) gs.svg.rotx=360+gs.svg.rotx;
-          if (gs.svg.roty<0) gs.svg.roty=360+gs.svg.roty;
-          if (gs.svg.rotz<0) gs.svg.rotz=360+gs.svg.rotz;
+          gs.gamepadaxes[0]=0; // left/right axis
+          gs.gamepadaxes[1]=1; // up/down axis
+          gs.gamepadaxes[2]=3; // cam left/right axis
+          gs.gamepadaxes[3]=4; // cam up/down axis
+        }
+        else
+        {
+          // Unknown non-"standard" mapping
+          gs.gamepadbuttons[0]=-1; // left (left) d-left
+          gs.gamepadbuttons[1]=-1; // right (left) d-right
+          gs.gamepadbuttons[2]=-1; // top (left) d-up
+          gs.gamepadbuttons[3]=-1; // bottom (left) d-down
+          gs.gamepadbuttons[4]=-1;  // bottom button (right) x
 
-          if (gs.svg.rotx>360) gs.svg.rotx-=360;
-          if (gs.svg.roty>360) gs.svg.roty-=360;
-          if (gs.svg.rotz>360) gs.svg.rotz-=360;
+          gs.gamepadaxes[0]=-1; // left/right axis
+          gs.gamepadaxes[1]=-1; // up/down axis
+          gs.gamepadaxes[2]=-1; // cam left/right axis
+          gs.gamepadaxes[3]=-1; // cam up/down axis
         }
       }
+
+      // Check analog axes
+      for (var i=0; i<gamepads[padid].axes.length; i++)
+      {
+        var val=gamepads[padid].axes[i];
+
+        if (i==gs.gamepadaxes[0])
+        {
+          gs.gamepadaxesval[0]=val;
+
+          if (val<-0.5) // Left
+            gleft=true;
+
+          if (val>0.5) // Right
+            gright=true;
+        }
+
+        if (i==gs.gamepadaxes[1])
+        {
+          gs.gamepadaxesval[1]=val;
+
+          if (val<-0.5) // Up
+            gup=true;
+
+          if (val>0.5) // Down
+            gdown=true;
+        }
+
+        if (i==gs.gamepadaxes[2])
+          gs.gamepadaxesval[2]=val;
+
+        if (i==gs.gamepadaxes[3])
+          gs.gamepadaxesval[3]=val;
+      }
+
+      // Check buttons
+      for (i=0; i<gamepads[padid].buttons.length; i++)
+      {
+        var val=gamepads[padid].buttons[i];
+        var pressed=val==1.0;
+
+        if (typeof(val)=="object")
+        {
+          pressed=val.pressed;
+          val=val.value;
+        }
+
+        if (pressed)
+        {
+          switch (i)
+          {
+            case gs.gamepadbuttons[0]: gleft=true; break;
+            case gs.gamepadbuttons[1]: gright=true; break;
+            case gs.gamepadbuttons[2]: gup=true; break;
+            case gs.gamepadbuttons[3]: gdown=true; break;
+            case gs.gamepadbuttons[4]: gjump=true; break;
+            default: break;
+          }
+        }
+      }
+
+      // Update padstate
+      if (gup)
+        gs.player.padstate|=2;
+      else
+        gs.player.padstate&=~2;
+
+      if (gdown)
+        gs.player.padstate|=8;
+      else
+        gs.player.padstate&=~8;
+
+      if (gleft)
+        gs.player.padstate|=1;
+      else
+        gs.player.padstate&=~1;
+
+      if (gright)
+        gs.player.padstate|=4;
+      else
+        gs.player.padstate&=~4;
+
+      if (gjump)
+        gs.player.padstate|=16;
+      else
+        gs.player.padstate&=~16;
     }
+  }
+
+  // Detect disconnect
+  if ((found==0) && (gs.gamepad!=-1))
+  {
+    console.log("Disconnected gamepad "+padid);
+    
+    gs.gamepad=-1;
   }
 }
 
@@ -244,6 +518,69 @@ function addmodel(model, x, y, z, rotx, roty, rotz)
   return (gs.activemodels.length-1);
 }
 
+// Update the player key state
+function updatekeystate(e, dir)
+{
+  switch (e.which)
+  {
+    case 37: // cursor left
+    case 65: // A
+    case 90: // Z
+      if (dir==1)
+        gs.player.keystate|=1;
+      else
+        gs.player.keystate&=~1;
+      e.preventDefault();
+      break;
+
+    case 38: // cursor up
+    case 87: // W
+    case 59: // semicolon
+      if (dir==1)
+        gs.player.keystate|=2;
+      else
+        gs.player.keystate&=~2;
+      e.preventDefault();
+      break;
+
+    case 39: // cursor right
+    case 68: // D
+    case 88: // X
+      if (dir==1)
+        gs.player.keystate|=4;
+      else
+        gs.player.keystate&=~4;
+      e.preventDefault();
+      break;
+
+    case 40: // cursor down
+    case 83: // S
+    case 190: // dot
+      if (dir==1)
+        gs.player.keystate|=8;
+      else
+        gs.player.keystate&=~8;
+      e.preventDefault();
+      break;
+
+    case 13: // enter
+    case 32: // space
+      if (dir==1)
+        gs.player.keystate|=16;
+      else
+        gs.player.keystate&=~16;
+      e.preventDefault();
+      break;
+
+    case 27: // escape
+      e.preventDefault();
+      break;
+
+    default:
+      break;
+  }
+}
+
 // Add a model by name
 function addnamedmodel(name, x, y, z, rotx, roty, rotz)
 {
@@ -255,6 +592,26 @@ function addnamedmodel(name, x, y, z, rotx, roty, rotz)
 // Entry point
 function init()
 {
+  // Initialise stuff
+  document.onkeydown=function(e)
+  {
+    e = e || window.event;
+    updatekeystate(e, 1);
+  };
+
+  document.onkeyup=function(e)
+  {
+    e = e || window.event;
+    updatekeystate(e, 0);
+  };
+
+  // Stop things from being dragged around
+  window.ondragstart=function(e)
+  {
+    e = e || window.event;
+    e.preventDefault();
+  };
+
   // Set up game state
   gs.svg.init();
 
@@ -268,7 +625,7 @@ function init()
   // Generate terrain model
   gs.terrain=generateterrain(10, 10, 100);
 
-  gs.player=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
+  gs.player.id=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
   addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
   addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
 
