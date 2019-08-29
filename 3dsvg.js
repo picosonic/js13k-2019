@@ -60,7 +60,7 @@ class svg3d
     this.cy=0;
 
     // Lighting
-    this.ambient=0.08;
+    this.ambient=0.18;
     this.intensity=0.7;
     this.lightpos={x:0, y:600, z:600};
   }
@@ -355,7 +355,7 @@ class svg3d
     var svgtxt="";
 
     // Order faces by z such that smallest average z gets rendered first
-    polys.sort(function(a,b){return a.zavg-b.zavg});
+    polys.sort(function(a,b){return b.zavg-a.zavg});
 
     // Serialise polys
     polys.forEach(function(item, index){svgtxt+=item.obj});
