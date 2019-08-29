@@ -11,7 +11,13 @@ var gs={
   svg:new svg3d(),
 
   // Active 3D models
-  activemodels:[]
+  activemodels:[],
+  terrain:{},
+
+  // Characters
+  player:null,
+
+  randoms:new randomizer(3,6,6,4)
 };
 
 function updatetime()
@@ -81,6 +87,47 @@ function rafcallback(timestamp)
 function playfieldsize()
 {
   gs.svg.resize();
+}
+
+function generateterrain(gridx, gridy, gridsize)
+{
+  var terrain={t:"terrain", w:gridx, d:gridy, tilesize:gridsize, heightmap:[], v:[], f:[], c:[], s:10, x:0, y:0, z:0};
+  var maxheight=32;
+
+  for (var y=0; y<gridy; y++)
+    for (var x=0; x<gridx; x++)
+    {
+      if (x>0)
+        terrain.heightmap[(y*gridx)+x]=terrain.heightmap[(y*gridx)+(x-1)]+(gs.randoms.rnd(maxheight/2)-(maxheight/4));
+      else
+        terrain.heightmap[(y*gridx)+x]=gs.randoms.rnd(maxheight);
+
+      terrain.v.push([x*gridsize-((gridx*gridsize)/2), (terrain.heightmap[(y*gridx)+x]), 0-(y*gridsize)]);
+    }
+
+  for (y=1; y<gridy; y++)
+    for (x=1; x<gridx; x++)
+    {
+      var offs=((y*gridx)+x)+1;
+
+      terrain.f.push([
+      offs,
+      offs-1,
+      offs-gridy-1
+      ]);
+
+      terrain.c.push(2);
+
+      terrain.f.push([
+      offs,
+      offs-gridy-1,
+      offs-gridy
+      ]);
+
+      terrain.c.push(2);
+    }
+
+  return terrain;
 }
 
 // Scan for any connected gamepads
@@ -163,6 +210,16 @@ function addmodel(model, x, y, z, rotx, roty, rotz)
   obj.vz=0;
 
   gs.activemodels.push(obj);
+
+  return (gs.activemodels.length-1);
+}
+
+// Add a model by name
+function addnamedmodel(name, x, y, z, rotx, roty, rotz)
+{
+  for (var i=0; i<models.length; i++)
+    if (models[i].t==name)
+      return addmodel(models[i], x, y, z, rotx, roty, rotz);
 }
 
 // Entry point
@@ -178,11 +235,12 @@ function init()
   // Temporary clock
 //  setInterval(function(){ updatetime(); }, 1000);
 
-  addmodel(models[0], -5, -5, -5, 0, 0, 0);
-  addmodel(models[0], -200, -200, -200, 10, 10, 10);
+  // Generate terrain model
+  gs.terrain=generateterrain(10, 10, 100);
 
-  gs.activemodels[0].vy=1;
-  gs.activemodels[0].vz=-10;
+  gs.player=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
+  addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
+  addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
 
   // Gamepad support
   if (!!(navigator.getGamepads))
