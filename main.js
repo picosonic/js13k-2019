@@ -40,6 +40,15 @@ function updateposition()
 // Update the game world state
 function update()
 {
+  // Keep player in view
+  gs.activemodels[gs.player].x=-gs.svg.tranx;
+  gs.activemodels[gs.player].y=-gs.svg.trany;
+  gs.activemodels[gs.player].z=-gs.svg.tranz;
+
+  gs.activemodels[gs.player].rotx=-gs.svg.rotx;
+  gs.activemodels[gs.player].roty=-gs.svg.roty;
+  gs.activemodels[gs.player].rotz=-gs.svg.rotz;
+
   updateposition();
 
   // Move object by velocity (if required)
