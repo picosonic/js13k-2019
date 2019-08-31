@@ -5,5 +5,12 @@
   {
     "image_large": "image-big.jpg",
     "image_thumbnail": "image-small.jpg"
+  },
+  "categories": ["Desktop", "Mobile", "Server", "Web Monetization", "WebXR"],
+  "user" :
+  {
+    "name": "optional",
+    "website": "optional",
+    "twitter": "optional"
   }
 }
