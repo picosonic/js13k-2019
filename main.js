@@ -190,6 +190,16 @@ function update()
   // Apply keystate to player
   updatemovements(gs.player);
 
+  // If player out of bounds, then reset
+  if ((gs.svg.tranx<-5000) ||
+   (gs.svg.tranx>5000) ||
+   (gs.svg.tranz<0) ||
+   (gs.svg.tranz>10000))
+  {
+    gs.svg.tranx=0;
+    gs.svg.tranz=5000;
+  }
+
   // Keep player in view
   gs.activemodels[gs.player.id].x=-gs.svg.tranx;
   gs.activemodels[gs.player.id].y=-gs.svg.trany;
