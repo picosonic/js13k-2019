@@ -29,6 +29,7 @@ var gs={
   shots:[],
   npcs:[],
 
+  level:1,
   blastradius:500,
   randoms:new randomizer(3,6,6,4)
 };
@@ -235,6 +236,30 @@ function levelcompleted()
 // Update the game world state
 function update()
 {
+  if (levelcompleted())
+  {
+    gs.level++;
+    if (gs.level==5) gs.level=1;
+
+    gs.blastradius=500-(gs.level*50);
+    gs.svg.rotz=45;
+
+    audio_collect();
+
+    // Add some new invaders
+    for (var n=0; n<(5*gs.level); n++)
+    {
+      var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 400, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
+
+      gs.npcs.push(gs.activemodels[o].id);
+
+      gs.activemodels[o].vx=25*Math.sin(gs.activemodels[o].roty*PIOVER180);
+      gs.activemodels[o].vz=-25*Math.cos(gs.activemodels[o].roty*PIOVER180);
+    }
+
+    return;
+  }
+
   // Weapon timeouts
   if (gs.shottimeout>0)
     gs.shottimeout--;
