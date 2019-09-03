@@ -53,7 +53,7 @@ class svg3d
     this.f=800; // focal length (viewer to image plane)
     this.xmax=1280;
     this.ymax=720;
-    this.vscale=1;
+    this.vscale=800/1500;
 
     // 2D cursor
     this.cx=0;
@@ -282,7 +282,7 @@ class svg3d
     // Draw points
     if (face.length==1)
     {
-      if ((this.roty<128) || (this.roty>250)) return poly;
+      if ((this.roty<90) || (this.roty>270)) return poly;
 
       lobj='<circle ';
       this.move3d(mx+(mesh.v[face[0]-1][0]*vs),my+(mesh.v[face[0]-1][1]*vs),mz+(mesh.v[face[0]-1][2]*vs));
@@ -389,16 +389,10 @@ class svg3d
           rgbstr=rgbobj[0]+','+rgbobj[1]+','+rgbobj[2];
         }
 
-        if (poly.zmax>2500)
-          lobj+='" style="filter:url(#dblur4)';
-        else
         if (poly.zmax>2400)
-          lobj+='" style="filter:url(#dblur3)';
-        else
-        if (poly.zmax>2300)
           lobj+='" style="filter:url(#dblur2)';
         else
-        if (poly.zmax>2200)
+        if (poly.zmax>2300)
           lobj+='" style="filter:url(#dblur1)';
 
         // Serialize fill colour and close SVG polygon
@@ -468,9 +462,6 @@ class svg3d
     // Resize svg object to fit window
     this.svg.style.width=window.innerWidth+"px";
     this.svg.style.height=window.innerHeight+"px";
-
-    // Adjust scaling to match window width
-    this.vscale=1280/1500;
   }
 
   init()
