@@ -145,11 +145,11 @@ function updatemovements(character)
   }
 
   // Do a dampened lean return
-  if (gs.leanx>0) gs.leanx-=gs.leanx>5?5:1;
-  if (gs.leanx<0) gs.leanx+=gs.leanx<-5?5:1;
+  if (gs.leanx>0) gs.leanx-=gs.leanx>2?2:1;
+  if (gs.leanx<0) gs.leanx+=gs.leanx<-2?2:1;
 
-  if (gs.leany>0) gs.leany-=gs.leany>5?5:1;
-  if (gs.leany<0) gs.leany+=gs.leany<-5?5:1;
+  if (gs.leany>0) gs.leany-=gs.leany>2?2:1;
+  if (gs.leany<0) gs.leany+=gs.leany<-2?2:1;
 
   // Rotate new level to flat
   if (gs.svg.rotz>5) gs.svg.rotz-=0.5;
