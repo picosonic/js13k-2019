@@ -25,8 +25,11 @@ var gs={
   leanx:0,
   leany:0,
   leanz:0,
+  shottimeout:0,
+  shots:[],
   npcs:[],
 
+  blastradius:500,
   randoms:new randomizer(3,6,6,4)
 };
 
@@ -147,6 +150,24 @@ function updatemovements(character)
     if (gs.svg.rotx>360) gs.svg.rotx-=360;
     if (gs.svg.roty>360) gs.svg.roty-=360;
     if (gs.svg.rotz>360) gs.svg.rotz-=360;
+
+    // Action key
+    if (ispressed(character, 16))
+    {
+      if ((gs.shottimeout==0) && (gs.shots.length<5))
+      {
+        var o=addnamedmodel("missile", -gs.svg.tranx, -gs.svg.trany, -gs.svg.tranz, gs.svg.rotx, gs.svg.roty, 0);
+
+        gs.activemodels[o].vx=100*Math.sin(gs.activemodels[o].roty*PIOVER180);
+        gs.activemodels[o].vz=100*Math.cos(gs.activemodels[o].roty*PIOVER180);
+        gs.activemodels[o].decay=(3*60);
+        gs.shots.push(gs.activemodels[o].id);
+
+        audio_missile();
+
+        gs.shottimeout=(0.5*60);
+      }
+    }
   }
   else
   {
@@ -187,6 +208,25 @@ function levelcompleted()
 // Update the game world state
 function update()
 {
+  // Weapon timeouts
+  if (gs.shottimeout>0)
+    gs.shottimeout--;
+
+  if (gs.shots.length==0) gs.shottimeout=0;
+
+  for (var h=0; h<gs.shots.length; h++)
+  {
+    var shotid=findmodelbyid(gs.shots[h]);
+
+    gs.activemodels[shotid].decay--;
+    if (gs.activemodels[shotid].decay<=0)
+    {
+      gs.activemodels.splice(shotid, 1);
+      gs.shots.splice(h, 1);
+      break;
+    }
+  }
+
   // Apply keystate to player
   updatemovements(gs.player);
 
