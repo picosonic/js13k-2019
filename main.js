@@ -28,18 +28,12 @@ var gs={
   shottimeout:0,
   shots:[],
   npcs:[],
+  score:0,
 
   level:1,
   blastradius:500,
   randoms:new randomizer(3,6,6,4)
 };
-
-function updatetime()
-{
-  var d = new Date();
-
-  writeseg(gs.svg.svghud, 250, 250, d.toLocaleTimeString(), "gold");
-}
 
 function updateposition()
 {
@@ -135,11 +129,11 @@ function updatemovements(character)
     }
 
 /*
-    // Roll - Sidestep L/R
+    // Roll - Sidestep / Strafe L/R
     gs.svg.tranx-=(val*16)*Math.sin((gs.svg.roty+90)*PIOVER180);
     gs.svg.tranz-=(val*16)*Math.cos((gs.svg.roty+90)*PIOVER180);
 
-    // Collective
+    // Collective Up/Down
     gs.svg.trany+=val*16;
 */
 
@@ -233,6 +227,12 @@ function levelcompleted()
   return (gs.npcs.length==0);
 }
 
+// Update the HUD
+function updatehud()
+{
+  writeseg(gs.svg.svghud, 600, 300, ""+gs.score, "gold");
+}
+
 // Update the game world state
 function update()
 {
@@ -306,6 +306,8 @@ function update()
 
         audio_explosion();
 
+        gs.score++;
+
         shotid=-1;
         break;
       }
@@ -373,6 +375,8 @@ function update()
       gs.activemodels[npcid].z+=gs.activemodels[npcid].vz;
     }
   }
+
+  updatehud();
 }
 
 // Request animation frame callback
@@ -814,12 +818,11 @@ function init()
 
   playfieldsize();
 
-  // Temporary clock
-//  setInterval(function(){ updatetime(); }, 1000);
-
   // Generate terrain model
   var terrainx=10, terrainy=10;
   gs.terrain=generateterrain(terrainx, terrainy, 100);
+
+  addnamedmodel("moon", 200, 600, -10000, 0, 0, 0);
 
   gs.player.id=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
   addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);

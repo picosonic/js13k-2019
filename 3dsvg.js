@@ -279,6 +279,43 @@ class svg3d
 
     var shade=0;
 
+    // Draw points
+    if (face.length==1)
+    {
+      if ((this.roty<128) || (this.roty>250)) return poly;
+
+      lobj='<circle ';
+      this.move3d(mx+(mesh.v[face[0]-1][0]*vs),my+(mesh.v[face[0]-1][1]*vs),mz+(mesh.v[face[0]-1][2]*vs));
+      lobj+='cx="'+this.cx+'" cy="'+this.cy+'" ';
+      zds.push(this.z);
+
+      lobj+='r="'+mesh.s+'"';
+      lobj+='" style="filter:url(#pLight)';
+
+      var rgbstr=Math.floor(palette[p%16][0])+','+Math.floor(palette[p%16][1])+','+Math.floor(palette[p%16][2]);
+
+      // Serialize fill colour and close SVG circle
+      lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
+
+      // Do smaller darker circle
+      lobj+='<ellipse ';
+      lobj+='cx="'+(this.cx-(mesh.s/3))+'" cy="'+(this.cy-(mesh.s/3))+'" ';
+      lobj+='rx="'+(mesh.s/4.5);
+      lobj+='" ry="'+(mesh.s/4);
+      lobj+='" style="filter:url(#dblur1)';
+      rgbstr="rgba(20,20,20,0.4)";
+      lobj+='" fill="'+rgbstr+'" stroke="'+rgbstr+'" />';
+
+      // Determine further point in Z buffer
+      poly.zmax=Math.max(...zds);
+      poly.zmin=Math.min(...zds);
+      poly.zavg=poly.zmin+((poly.zmax-poly.zmin)/2);
+
+      poly.obj=lobj;
+
+      return poly;
+    }
+
     // Draw lines
     if (face.length==2)
     {
@@ -352,6 +389,18 @@ class svg3d
           rgbstr=rgbobj[0]+','+rgbobj[1]+','+rgbobj[2];
         }
 
+        if (poly.zmax>2500)
+          lobj+='" style="filter:url(#dblur4)';
+        else
+        if (poly.zmax>2400)
+          lobj+='" style="filter:url(#dblur3)';
+        else
+        if (poly.zmax>2300)
+          lobj+='" style="filter:url(#dblur2)';
+        else
+        if (poly.zmax>2200)
+          lobj+='" style="filter:url(#dblur1)';
+
         // Serialize fill colour and close SVG polygon
         lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
 
@@ -374,7 +423,7 @@ class svg3d
 
     // Iterate through object faces
     mesh.f.forEach(function (item, index) {
-      if (mesh.n==undefined)
+      if ((mesh.f.length>1) && (mesh.n==undefined))
         norms[index]=this.calcnormal(mesh.v[item[0]-1], mesh.v[item[1]-1], mesh.v[item[2]-1]);
       polys.push(this.draw3dpoly(mesh, item, mesh.s, mesh.c[index]||7, mx+this.tranx, my+this.trany, mz+this.tranz));
     }, this);
