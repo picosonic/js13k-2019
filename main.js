@@ -187,6 +187,33 @@ function updatemovements(character)
   if (gs.svg.rotz>5) gs.svg.rotz-=0.5;
 }
 
+function angle2d(x1, y1, x2, y2)
+{
+  var result=(Math.atan2(y2-y1,x2-x1)*(180/Math.PI));
+
+  return result;
+}
+
+// Distance between 2 [x,y,z] points
+function distance3d(x1, y1, z1, x2, y2, z2)
+{
+  return (
+    Math.sqrt(
+      Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2) + Math.pow(z2-z1, 2)
+    )
+  );
+}
+
+// Roughly see if two points have overlap
+function overlap3d(x1, y1, z1, x2, y2, z2, overlap)
+{
+  var dx=Math.abs(Math.max(x1, x2)-Math.min(x1, x2));
+  var dy=Math.abs(Math.max(y1, y2)-Math.min(y1, y2));
+  var dz=Math.abs(Math.max(z1, z2)-Math.min(z1, z2));
+
+  return ((dx<overlap) && (dy<overlap) && (dz<overlap));
+}
+
 // Find a model with matching id
 function findmodelbyid(id)
 {
@@ -225,6 +252,41 @@ function update()
       gs.shots.splice(h, 1);
       break;
     }
+  }
+
+  // Weapon hit detection
+  for (var g=0; g<gs.shots.length; g++)
+  {
+    var shotid=findmodelbyid(gs.shots[g]);
+    if (shotid==-1) continue;
+    gs.activemodels[shotid].roty=gs.lasttime%360;
+
+    for (var i=0; i<gs.npcs.length; i++)
+    {
+      var npcid=findmodelbyid(gs.npcs[i]);
+      if (npcid==-1) continue;
+
+      var shot=gs.activemodels[shotid];
+      var nme=gs.activemodels[npcid];
+
+      if (overlap3d(shot.x, shot.y, shot.z, nme.x, nme.y, nme.z, gs.blastradius))
+      {
+        // Remove shot
+        gs.activemodels.splice(shotid, 1);
+        gs.shots.splice(g, 1);
+
+        // Remove npc
+        gs.activemodels.splice(npcid, 1);
+        gs.npcs.splice(i, 1);
+
+        audio_explosion();
+
+        shotid=-1;
+        break;
+      }
+    }
+
+    if (shotid==-1) break;
   }
 
   // Apply keystate to player
@@ -731,14 +793,15 @@ function init()
 //  setInterval(function(){ updatetime(); }, 1000);
 
   // Generate terrain model
-  gs.terrain=generateterrain(10, 10, 100);
+  var terrainx=10, terrainy=10;
+  gs.terrain=generateterrain(terrainx, terrainy, 100);
 
   gs.player.id=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
   addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
   addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
 
-  for (var y=0; y<10; y++)
-    for (var x=0; x<10; x++)
+  for (var y=0; y<terrainy; y++)
+    for (var x=0; x<terrainx; x++)
     {
       if (gs.randoms.rnd(10)<5)
         addnamedmodel("tree",
