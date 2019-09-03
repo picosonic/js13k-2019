@@ -1,3 +1,8 @@
+function clear(id)
+{
+  id.innerHTML="";
+}
+
 function writeseg(id, x, y, text, colour, scale)
 {
   var svgtext="";
@@ -16,7 +21,7 @@ function writeseg(id, x, y, text, colour, scale)
     for (var k=0; k<2; k++)
     {
       svgtext+="<g style='transform:scale(1,-1); transform-origin:center;'";
-      if (k==0) svgtext+=" filter='url(#dblur4)'";
+      if (k==0) svgtext+=" filter='url(#dblur2)'";
       svgtext+=">";
 
       for (var j=0; j<16; j++)
@@ -44,5 +49,5 @@ function writeseg(id, x, y, text, colour, scale)
 
   }
 
-  id.innerHTML=svgtext;
+  id.innerHTML+=svgtext;
 }
