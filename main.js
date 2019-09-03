@@ -823,7 +823,7 @@ function init()
   var terrainx=10, terrainy=10;
   gs.terrain=generateterrain(terrainx, terrainy, 100);
 
-  addnamedmodel("moon", 200, 600, -10000, 0, 0, 0);
+  addnamedmodel("moon", 200, 900, -10000, 0, 0, 0);
 
   gs.player.id=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
   addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
