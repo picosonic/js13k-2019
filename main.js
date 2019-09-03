@@ -184,7 +184,7 @@ function updatemovements(character)
   if (gs.leany<0) gs.leany+=gs.leany<-2?2:1;
 
   // Rotate new level to flat
-  if (gs.svg.rotz>5) gs.svg.rotz-=0.5;
+  if (gs.svg.rotz>20) gs.svg.rotz-=0.25;
 }
 
 function angle2d(x1, y1, x2, y2)
