@@ -3,6 +3,8 @@ JS13KGames entry for 2019, theme is "**BACK**".
 
 ## BACKSPACE - Return to planet Figadore
 
+Oh no, Fred has been kidnapped on planet Figadore in the Hercules cluster. Play as his sister Jade and battle the invaders as you race back to rescue him.
+
 # Libraries used
 * [jsfxr](https://github.com/mneubrand/jsfxr)
 
