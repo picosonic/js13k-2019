@@ -19,10 +19,6 @@
 <div id="wrapper">
   <svg id="svg" style="position:absolute; top:0px; left:0px; width:1280px; height:720px;" viewbox="0 0 1280 720">
     <defs>
-    <filter id="segblur">
-      <feGaussianBlur stdDeviation="4" />
-    </filter>
-
     <filter id="dblur1">
       <feGaussianBlur stdDeviation="1" />
     </filter>
@@ -42,14 +38,6 @@
     <filter id="displacementFilter">
       <feTurbulence type="turbulence" baseFrequency="0.8" numOctaves="2" result="turbulence"/>
       <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="2" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-
-    <filter id="pLight">
-      <feDiffuseLighting in="SourceGraphic" result="light" lighting-color="rgb(100,100,100)">
-        <fePointLight x="-150" y="-150" z="200" />
-      </feDiffuseLighting>
-
-      <feComposite in="SourceGraphic" in2="light" operator="arithmetic" k1="1" k2="0" k3="0" k4="0"/>
     </filter>
 
     <clipPath id="crop">

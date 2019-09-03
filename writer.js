@@ -16,7 +16,7 @@ function writeseg(id, x, y, text, colour)
     for (var k=0; k<2; k++)
     {
       svgtext+="<g style='transform:scale(1,-1); transform-origin:center;'";
-      if (k==0) svgtext+=" filter='url(#segblur)'";
+      if (k==0) svgtext+=" filter='url(#dblur4)'";
       svgtext+=">";
 
       for (var j=0; j<16; j++)
