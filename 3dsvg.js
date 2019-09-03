@@ -284,13 +284,12 @@ class svg3d
     {
       if ((this.roty<90) || (this.roty>270)) return poly;
 
-      lobj='<circle ';
+      lobj='<g style="filter:url(#dblur1)"><circle ';
       this.move3d(mx+(mesh.v[face[0]-1][0]*vs),my+(mesh.v[face[0]-1][1]*vs),mz+(mesh.v[face[0]-1][2]*vs));
       lobj+='cx="'+this.cx+'" cy="'+this.cy+'" ';
       zds.push(this.z);
 
       lobj+='r="'+mesh.s+'"';
-      lobj+='" style="filter:url(#pLight)';
 
       var rgbstr=Math.floor(palette[p%16][0])+','+Math.floor(palette[p%16][1])+','+Math.floor(palette[p%16][2]);
 
@@ -302,9 +301,8 @@ class svg3d
       lobj+='cx="'+(this.cx-(mesh.s/3))+'" cy="'+(this.cy-(mesh.s/3))+'" ';
       lobj+='rx="'+(mesh.s/4.5);
       lobj+='" ry="'+(mesh.s/4);
-      lobj+='" style="filter:url(#dblur1)';
-      rgbstr="rgba(20,20,20,0.4)";
-      lobj+='" fill="'+rgbstr+'" stroke="'+rgbstr+'" />';
+      rgbstr=" rgba(20,20,20,0.4)";
+      lobj+='" fill="'+rgbstr+'" stroke="'+rgbstr+'" /></g>';
 
       // Determine further point in Z buffer
       poly.zmax=Math.max(...zds);
