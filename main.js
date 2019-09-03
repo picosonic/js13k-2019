@@ -269,6 +269,7 @@ function update()
   for (var h=0; h<gs.shots.length; h++)
   {
     var shotid=findmodelbyid(gs.shots[h]);
+    if (shotid==-1) continue;
 
     gs.activemodels[shotid].decay--;
     if (gs.activemodels[shotid].decay<=0)
