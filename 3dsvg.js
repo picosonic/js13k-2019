@@ -35,7 +35,7 @@ class svg3d
     // World rotation in degrees
     this.rotx=0;
     this.roty=180;
-    this.rotz=0;
+    this.rotz=45;
 
     // World translation in pixels
     this.tranx=0;
@@ -315,7 +315,17 @@ class svg3d
         if (shade<0) shade=0;
         if (shade>1) shade=1;
 
-        var rgbstr=Math.floor(palette[p][0]*shade)+','+Math.floor(palette[p][1]*shade)+','+Math.floor(palette[p][2]*shade);
+        var rgbstr=Math.floor(palette[p%16][0]*shade)+','+Math.floor(palette[p%16][1]*shade)+','+Math.floor(palette[p%16][2]*shade);
+
+        if (p>16)
+        {
+          var rgbobj=rgbstr.split(',');
+          rgbobj[0]=""+(parseInt(rgbobj[0], 10)+gs.randoms.rnd(128)-75);
+          rgbobj[1]=""+(parseInt(rgbobj[1], 10)+gs.randoms.rnd(128)-75);
+          rgbobj[2]=""+(parseInt(rgbobj[2], 10)+gs.randoms.rnd(128)-75);
+
+          rgbstr=rgbobj[0]+','+rgbobj[1]+','+rgbobj[2];
+        }
 
         // Serialize fill colour and close SVG polygon
         lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
