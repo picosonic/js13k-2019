@@ -111,6 +111,11 @@ function updatemovements(character)
       gs.svg.tranx+=(val*36)*Math.sin(gs.svg.roty*PIOVER180);
       gs.svg.tranz+=(val*36)*Math.cos(gs.svg.roty*PIOVER180);
     }
+    else
+    {
+      gs.svg.tranx-=15*Math.sin(gs.svg.roty*PIOVER180);
+      gs.svg.tranz-=15*Math.cos(gs.svg.roty*PIOVER180);
+    }
 
     // Down key
     if ((ispressed(character, 8)) && (!ispressed(character, 2)))
@@ -121,8 +126,8 @@ function updatemovements(character)
         val=1;
 
       // Pitch - F/B
-      gs.svg.tranx+=(val*16)*Math.sin(gs.svg.roty*PIOVER180);
-      gs.svg.tranz+=(val*16)*Math.cos(gs.svg.roty*PIOVER180);
+      gs.svg.tranx+=(val*24)*Math.sin(gs.svg.roty*PIOVER180);
+      gs.svg.tranz+=(val*24)*Math.cos(gs.svg.roty*PIOVER180);
     }
 
 /*
@@ -142,6 +147,12 @@ function updatemovements(character)
     if (gs.svg.rotx>360) gs.svg.rotx-=360;
     if (gs.svg.roty>360) gs.svg.roty-=360;
     if (gs.svg.rotz>360) gs.svg.rotz-=360;
+  }
+  else
+  {
+    // Continue forwards if nothing pressed
+    gs.svg.tranx-=15*Math.sin(gs.svg.roty*PIOVER180);
+    gs.svg.tranz-=15*Math.cos(gs.svg.roty*PIOVER180);
   }
 
   // Do a dampened lean return
