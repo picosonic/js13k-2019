@@ -17,7 +17,8 @@
 </head>
 <body>
 <div id="wrapper">
-  <svg id="svg" style="position:absolute; top:0px; left:0px; width:1280px; height:720px;">
+  <svg id="svg" style="position:absolute; top:0px; left:0px; width:1280px; height:720px;" viewbox="0 0 1280 720">
+    <defs>
     <filter id="segblur">
       <feGaussianBlur stdDeviation="4" />
     </filter>
@@ -51,8 +52,19 @@
       <feComposite in="SourceGraphic" in2="light" operator="arithmetic" k1="1" k2="0" k3="0" k4="0"/>
     </filter>
 
-    <g id="playfield" shaperendering="optimizeSpeed"></g>
-    <g id="hud"></g>
+    <clipPath id="crop">
+      <rect x="0" y="0" width="1280" height="720" />
+    </clipPath>
+
+    <linearGradient id="skygradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(42,82,152);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+    <rect width="1280" height="720" fill="url(#skygradient)" />
+    <g id="playfield" shaperendering="optimizeSpeed" clip-path="url(#crop)"></g>
+    <g id="hud" shaperendering="optimizeSpeed" clip-path="url(#crop)"></g>
   </svg>
 <div id="debug" style="position:absolute; top:0px; left:0px; color:white;">DEBUG</div>
 </div>

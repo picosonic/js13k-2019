@@ -51,8 +51,8 @@ class svg3d
 
     // Viewport reference
     this.f=800; // focal length (viewer to image plane)
-    this.xmax=800;
-    this.ymax=600;
+    this.xmax=1280;
+    this.ymax=720;
     this.vscale=1;
 
     // 2D cursor
@@ -465,16 +465,12 @@ class svg3d
 
   resize()
   {
-    // Determine window size
-    this.xmax=window.innerWidth;
-    this.ymax=window.innerHeight;
-
     // Resize svg object to fit window
-    this.svg.style.width=this.xmax+"px";
-    this.svg.style.height=this.ymax+"px";
+    this.svg.style.width=window.innerWidth+"px";
+    this.svg.style.height=window.innerHeight+"px";
 
     // Adjust scaling to match window width
-    this.vscale=this.xmax/1500;
+    this.vscale=1280/1500;
   }
 
   init()

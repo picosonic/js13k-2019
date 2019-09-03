@@ -230,7 +230,7 @@ function levelcompleted()
 // Update the HUD
 function updatehud()
 {
-  writeseg(gs.svg.svghud, 600, 300, ""+gs.score, "gold");
+  writeseg(gs.svg.svghud, 1150, 600, ""+gs.score, "gold");
 }
 
 // Update the game world state
