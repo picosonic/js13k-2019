@@ -25,6 +25,7 @@ var gs={
   leanx:0,
   leany:0,
   leanz:0,
+  npcs:[],
 
   randoms:new randomizer(3,6,6,4)
 };
@@ -44,6 +45,7 @@ function updateposition()
   dbg+="RX:"+Math.floor(gs.svg.rotx)+" RY:"+Math.floor(gs.svg.roty)+" RZ:"+Math.floor(gs.svg.rotz)+"<br/>";
   dbg+="KEY:"+gs.player.keystate;
   if (gs.gamepad!=-1) dbg+=" PAD:"+gs.player.padstate;
+  dbg+="<br/>INV "+gs.npcs.length;
 
   document.getElementById("debug").innerHTML=dbg;
 }
@@ -148,6 +150,27 @@ function updatemovements(character)
 
   if (gs.leany>0) gs.leany-=gs.leany>5?5:1;
   if (gs.leany<0) gs.leany+=gs.leany<-5?5:1;
+
+  // Rotate new level to flat
+  if (gs.svg.rotz>5) gs.svg.rotz-=0.5;
+}
+
+// Find a model with matching id
+function findmodelbyid(id)
+{
+  for (var i=0; i<gs.activemodels.length; i++)
+  {
+    if (gs.activemodels[i].id==id)
+      return i;
+  }
+
+  return -1;
+}
+
+// Determine if level completed
+function levelcompleted()
+{
+  return (gs.npcs.length==0);
 }
 
 // Update the game world state
@@ -163,7 +186,7 @@ function update()
 
   gs.activemodels[gs.player.id].rotx=-gs.svg.rotx;
   gs.activemodels[gs.player.id].roty=-gs.svg.roty;
-  gs.activemodels[gs.player.id].rotz=-gs.svg.rotz;
+  gs.activemodels[gs.player.id].rotz=0;
 
   // Update player angle
   gs.activemodels[gs.player.id].rotx+=gs.leanx;
@@ -174,10 +197,34 @@ function update()
 
   // Move object by velocity (if required)
   gs.activemodels.forEach(function (item, index) {
-    if (item.vx!=0) item.x+=item.vx;
-    if (item.vy!=0) item.y+=item.vy;
-    if (item.vz!=0) item.z+=item.vz;
+    item.x+=item.vx;
+    item.y+=item.vy;
+    item.z+=item.vz;
   });
+
+  // Move enemies around
+  for (var i=0; i<gs.npcs.length; i++)
+  {
+    var npcid=findmodelbyid(gs.npcs[i]);
+    if (npcid==-1) continue;
+    var angle=gs.activemodels[npcid].roty;
+
+    // If out of bounds, then set on a new random course
+    if ((gs.activemodels[npcid].x<-5000) ||
+       (gs.activemodels[npcid].z<-10000) ||
+       (gs.activemodels[npcid].x>5000) ||
+       (gs.activemodels[npcid].z>0))
+    {
+      angle=(gs.activemodels[npcid].roty+180+gs.randoms.rnd(45))%360;
+      gs.activemodels[npcid].roty=angle;
+
+      gs.activemodels[npcid].vx=25*Math.sin(angle*PIOVER180);
+      gs.activemodels[npcid].vz=-25*Math.cos(angle*PIOVER180);
+
+      gs.activemodels[npcid].x+=gs.activemodels[npcid].vx;
+      gs.activemodels[npcid].z+=gs.activemodels[npcid].vz;
+    }
+  }
 }
 
 // Request animation frame callback
@@ -642,10 +689,15 @@ function init()
           0);
     }
 
-  // Test velocity
-  gs.activemodels[1].vx=0;
-  gs.activemodels[1].vy=0;
-  gs.activemodels[1].vz=-10;
+  for (var n=0; n<10; n++)
+  {
+    var o=addnamedmodel("invader", 0, 400, -3000, 0, gs.randoms.rnd(360), 0);
+
+    gs.npcs.push(gs.activemodels[o].id);
+
+    gs.activemodels[o].vx=25*Math.sin(gs.activemodels[o].roty*PIOVER180);
+    gs.activemodels[o].vz=-25*Math.cos(gs.activemodels[o].roty*PIOVER180);
+  }
 
   // Start the game running
   window.requestAnimationFrame(rafcallback);
