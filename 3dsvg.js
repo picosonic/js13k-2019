@@ -240,6 +240,31 @@ class svg3d
     return Math.max(0, (norm.x * lightdir.x + norm.y * lightdir.y + norm.z * lightdir.z));
   }
 
+  calchemisphereshade(v1, v2, v3)
+  {
+    var norm=this.calcnormal(v1, v2, v3);
+    var len=0;
+    var lightdir={
+      x:0.7,
+      y:0.7,
+      z:0.7
+    };
+
+    // Normalise norm
+    len=(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+  //  len=Math.sqrt(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+    len*=this.Q_rsqrt(len);
+    if (len!=0)
+    {
+      len=(1.0/len);
+      norm.x*=len; norm.y*=len; norm.z*=len;
+    }
+
+    // compute angle between normal and light
+
+    return Math.max(0, (norm.x * lightdir.x + norm.y * lightdir.y + norm.z * lightdir.z));
+  }
+
   draw3dpoly(mesh, face, vs, p, mx, my, mz)
   {
     var lobj='<polygon points="';
