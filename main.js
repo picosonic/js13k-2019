@@ -166,7 +166,7 @@ function updatemovements(character)
         gs.activemodels[o].decay=(3*60);
         gs.shots.push(gs.activemodels[o].id);
 
-        audio_missile();
+        audio_fire();
 
         gs.shottimeout=(0.5*60);
       }
