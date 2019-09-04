@@ -41,7 +41,7 @@ function writeseg(id, x, y, text, colour, scale)
             }
           }
 
-          svgtext+='" style="fill:'+(colour||'#ff0000')+';stroke:none;" transform="translate('+(x+((scale*i*charwidth)))+' '+y+')"/>';
+          svgtext+='" style="fill:'+(colour||'#ff0000')+';stroke:none;" transform="translate('+(x+((scale*i*charwidth)))+' '+(gs.svg.ymax-y)+')"/>';
         }
 
       svgtext+="</g>";
