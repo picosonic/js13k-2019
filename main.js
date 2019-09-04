@@ -32,6 +32,8 @@ var gs={
 
   level:1,
   blastradius:500,
+  infecttimeout:(5*60),
+  infectradius:200,
   randoms:new randomizer(3,6,6,4)
 };
 
@@ -226,10 +228,49 @@ function findmodelbyid(id)
   return -1;
 }
 
+// Switch model colours
+function swapcolours(modelid, source, target)
+{
+  for (var i=0; i<gs.activemodels[modelid].c.length; i++)
+    if (gs.activemodels[modelid].c[i]==source)
+      gs.activemodels[modelid].c[i]=target;
+}
+
+// Check infection status flag
+function infectedstatus(flag)
+{
+  var counter=0;
+
+  for (var i=0; i<gs.npcs.length; i++)
+  {
+    var npc=findmodelbyid(gs.npcs[i]);
+    if (npc==-1) continue;
+
+    if (gs.activemodels[npc].flags==flag)
+      counter++;
+  }
+
+  return counter;
+}
+
+// Remove all NPCs
+function removenpcs()
+{
+  for (var i=0; i<gs.npcs.length; i++)
+  {
+    var npc=findmodelbyid(gs.npcs[i]);
+    if (npc!=-1)
+      gs.activemodels.splice(npc, 1);
+  }
+
+  // Wipe NPC array
+  gs.npcs=[];
+}
+
 // Determine if level completed
 function levelcompleted()
 {
-  return (gs.npcs.length==0);
+  return ((infectedstatus(1)==0) || (gs.npcs.length==0));
 }
 
 // Update the HUD
@@ -249,14 +290,26 @@ function update()
     if (gs.level==5) gs.level=1;
 
     gs.blastradius=500-(gs.level*50);
+    gs.infecttimeout=(5*60);
     gs.svg.rotz=45;
 
+    // Play audio to signify change of level
     audio_collect();
+
+    // Remove NPCs from previous level
+    removenpcs();
 
     // Add some new invaders
     for (var n=0; n<(5*gs.level); n++)
     {
-      var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 400, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
+      var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 600, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
+
+      // Swap first half to red and mark as infected
+      if (n<(2.5*gs.level))
+      {
+        swapcolours(o, 0, 1);
+        gs.activemodels[o].flags=1;
+      }
 
       gs.npcs.push(gs.activemodels[o].id);
 
@@ -266,6 +319,10 @@ function update()
 
     return;
   }
+
+  // Infection timeout
+  if (gs.infecttimeout>0)
+    gs.infecttimeout--;
 
   // Weapon timeouts
   if (gs.shottimeout>0)
@@ -287,7 +344,42 @@ function update()
     }
   }
 
-  // Weapon hit detection
+  // Invader <-> Invader hit detection
+  if ((gs.npcs.length>0) && (gs.infecttimeout==0))
+  {
+    for (var i=0; i<gs.npcs.length; i++)
+    {
+      var npcid=findmodelbyid(gs.npcs[i]);
+      if (npcid==-1) continue;
+
+      for (var j=0; j<gs.npcs.length; j++)
+      {
+        var npcid2=findmodelbyid(gs.npcs[j]);
+        if (npcid2==-1) continue;
+
+        var nme=gs.activemodels[npcid];
+        var nme2=gs.activemodels[npcid2];
+
+        // If first infected and second not then see if they are within infection radius
+        if ((nme.flags==1) && (nme2.flags==0))
+        {
+          if (overlap3d(nme.x, nme.y, nme.z, nme2.x, nme2.y, nme2.z, gs.infectradius))
+          {
+            // Swap grey to red
+            swapcolours(npcid2, 0, 1);
+
+            // Mark second as threat
+            gs.activemodels[npcid2].flags=1;
+
+            // Sound the infection
+            audio_alien();
+          }
+        }
+      }
+    }
+  }
+
+  // Weapon <-> Invader hit detection
   for (var g=0; g<gs.shots.length; g++)
   {
     var shotid=findmodelbyid(gs.shots[g]);
@@ -309,10 +401,18 @@ function update()
         gs.shots.splice(g, 1);
 
         // Remove npc
-        gs.activemodels.splice(npcid, 1);
-        gs.npcs.splice(i, 1);
+//        gs.activemodels.splice(npcid, 1);
+//        gs.npcs.splice(i, 1);
 
-        audio_explosion();
+        // Swap red back to grey
+        swapcolours(npcid, 1, 0);
+
+        // Sound the de-infection
+        if (gs.activemodels[npcid].flags==1)
+          audio_explosion();
+
+        // Mark as non-threat
+        gs.activemodels[npcid].flags=0;
 
         gs.score++;
 
@@ -367,18 +467,33 @@ function update()
     if (npcid==-1) continue;
     var angle=gs.activemodels[npcid].roty;
 
+    // If infected, change direction sometimes
+    if ((gs.activemodels[npcid].flags==1) && (gs.randoms.rnd(250)<10))
+    {
+      // Randomize a new angle
+      angle=(gs.activemodels[npcid].roty+gs.randoms.rnd(25))%360;
+      gs.activemodels[npcid].roty=angle;
+
+      // Set new movement vector
+      gs.activemodels[npcid].vx=25*Math.sin(angle*PIOVER180);
+      gs.activemodels[npcid].vz=-25*Math.cos(angle*PIOVER180);
+    }
+
     // If out of bounds, then set on a new random course
     if ((gs.activemodels[npcid].x<-5000) ||
        (gs.activemodels[npcid].z<-10000) ||
        (gs.activemodels[npcid].x>5000) ||
        (gs.activemodels[npcid].z>0))
     {
+      // Randomize a new angle
       angle=(gs.activemodels[npcid].roty+180+gs.randoms.rnd(45))%360;
       gs.activemodels[npcid].roty=angle;
 
+      // Set new movement vector
       gs.activemodels[npcid].vx=25*Math.sin(angle*PIOVER180);
       gs.activemodels[npcid].vz=-25*Math.cos(angle*PIOVER180);
 
+      // Move enemy away from boundary
       gs.activemodels[npcid].x+=gs.activemodels[npcid].vx;
       gs.activemodels[npcid].z+=gs.activemodels[npcid].vz;
     }
@@ -720,6 +835,9 @@ function addmodel(model, x, y, z, rotx, roty, rotz)
   obj.vy=0;
   obj.vz=0;
 
+  // Flags
+  obj.flags=0;
+
   gs.activemodels.push(obj);
 
   return (gs.activemodels.length-1);
@@ -851,7 +969,14 @@ function init()
 
   for (var n=0; n<10; n++)
   {
-    var o=addnamedmodel("invader", 0, 400, -3000, 0, gs.randoms.rnd(360), 0);
+    var o=addnamedmodel("invader", 0, 600, -3000, 0, gs.randoms.rnd(360), 0);
+
+    // Swap first half to red and mark as infected
+    if (n<(10/2))
+    {
+      swapcolours(o, 0, 1);
+      gs.activemodels[o].flags=1;
+    }
 
     gs.npcs.push(gs.activemodels[o].id);
 
