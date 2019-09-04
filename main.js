@@ -470,8 +470,8 @@ function update()
     if (npcid==-1) continue;
     var angle=gs.activemodels[npcid].roty;
 
-    // If infected, change direction sometimes
-    if ((gs.activemodels[npcid].flags==1) && (gs.randoms.rnd(250)<10))
+    // Change direction sometimes
+    if (gs.randoms.rnd(250)<10)
     {
       // Randomize a new angle
       angle=(gs.activemodels[npcid].roty+gs.randoms.rnd(25))%360;
