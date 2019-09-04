@@ -33,7 +33,7 @@ var gs={
   level:1,
   blastradius:500,
   infecttimeout:(5*60),
-  infectradius:200,
+  infectradius:150,
   randoms:new randomizer(3,6,6,4)
 };
 
