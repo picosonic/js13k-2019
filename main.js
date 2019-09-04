@@ -293,17 +293,49 @@ function levelcompleted()
 function updatehud()
 {
   clear(gs.svg.svghud);
-  writeseg(gs.svg.svghud, 1000, 650, "SCORE "+gs.score, "gold", 0.5);
-  writeseg(gs.svg.svghud, 1000, 600, "LEVEL "+gs.level, "gold", 0.5);
+
+  switch (gs.state)
+  {
+    case 2:
+      writeseg(gs.svg.svghud, 1000, 650, "SCORE "+gs.score, "gold", 0.5);
+      writeseg(gs.svg.svghud, 1000, 600, "LEVEL "+gs.level, "gold", 0.5);
+      break;
+
+    case 3:
+      if (infectedstatus(1)==0)
+      {
+        writeseg(gs.svg.svghud, 100, 340, "YOU'VE DONE IT", "gold", 1.5);
+        writeseg(gs.svg.svghud, 185, 480, "PLANET FIGADORE IS SAVED", "gold", 0.7);
+      }
+      else
+      {
+        writeseg(gs.svg.svghud, 350, 340, "FAILED", "red", 2);
+        writeseg(gs.svg.svghud, 140, 480, "TO DISINFECT PLANET FIGADORE", "red", 0.7);
+      }
+      break;
+
+    default:
+      break;
+  }
 }
 
 // Update the game world state
 function update()
 {
+  if (gs.state!=2) return;
+
   if (levelcompleted())
   {
     gs.level++;
-    if (gs.level==5) gs.level=1;
+    if (gs.level==5)
+    {
+      gs.state=3;
+      gs.level=1;
+
+      updatehud();
+
+      return;
+    }
 
     gs.blastradius=500-(gs.level*50);
     gs.infecttimeout=(5*60);
@@ -387,8 +419,19 @@ function update()
             // Mark second as threat
             gs.activemodels[npcid2].flags=1;
 
-            // Sound the infection
-            audio_alien();
+            // See if this was the last one to be infected
+            if (infectedstatus(1)==gs.npcs.length)
+            {
+              // Level failed
+              audio_failed();
+
+              // TODO stop game show failure message
+            }
+            else
+            {
+              // Sound the infection
+              audio_alien();
+            }
           }
         }
       }
@@ -1008,6 +1051,8 @@ function init()
     gs.activemodels[o].vx=25*Math.sin(gs.activemodels[o].roty*PIOVER180);
     gs.activemodels[o].vz=-25*Math.cos(gs.activemodels[o].roty*PIOVER180);
   }
+
+  gs.state=2;
 
   // Start the game running
   window.requestAnimationFrame(rafcallback);
