@@ -232,6 +232,8 @@ function findmodelbyid(id)
 // Switch model colours
 function swapcolours(modelid, source, target)
 {
+  if (modelid==-1) return;
+
   for (var i=0; i<gs.activemodels[modelid].c.length; i++)
     if (gs.activemodels[modelid].c[i]==source)
       gs.activemodels[modelid].c[i]=target;
