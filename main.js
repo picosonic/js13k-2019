@@ -425,7 +425,12 @@ function update()
               // Level failed
               audio_failed();
 
-              // TODO stop game show failure message
+              gs.state=3;
+              gs.level=1;
+
+              updatehud();
+
+              return;
             }
             else
             {
