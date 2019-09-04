@@ -412,7 +412,7 @@ function update()
 
         // Sound the de-infection
         if (gs.activemodels[npcid].flags==1)
-          audio_explosion();
+          audio_deinfect();
 
         // Mark as non-threat
         gs.activemodels[npcid].flags=0;
