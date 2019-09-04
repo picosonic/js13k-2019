@@ -34,7 +34,8 @@ var gs={
   blastradius:500,
   infecttimeout:(5*60),
   infectradius:150,
-  randoms:new randomizer(3,6,6,4)
+  randoms:new randomizer(3,6,6,4),
+  state:0 // 0=intro, 1=title, 2=ingame 3=completed
 };
 
 function updateposition()
