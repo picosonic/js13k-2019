@@ -22,6 +22,10 @@ var gs={
 
   // Characters
   player:{id:null, keystate:0, padstate:0}, // input bitfield [action][down][right][up][left]
+  clientx:0,
+  clienty:0,
+  clientdx:0,
+  clientdy:0,
   leanx:0,
   leany:0,
   leanz:0,
@@ -137,10 +141,6 @@ function updatemovements(character)
     }
 
 /*
-    // Roll - Sidestep / Strafe L/R
-    gs.svg.tranx-=(val*16)*Math.sin((gs.svg.roty+90)*PIOVER180);
-    gs.svg.tranz-=(val*16)*Math.cos((gs.svg.roty+90)*PIOVER180);
-
     // Collective Up/Down
     gs.svg.trany+=val*16;
 */
@@ -177,6 +177,19 @@ function updatemovements(character)
     // Continue forwards if nothing pressed
     gs.svg.tranx-=15*Math.sin(gs.svg.roty*PIOVER180);
     gs.svg.tranz-=15*Math.cos(gs.svg.roty*PIOVER180);
+  }
+
+  // Roll - Sidestep / Strafe L/R
+  if (gs.clientdx!=gs.clientx)
+  {
+    val=gs.clientdx-gs.clientx;
+
+    gs.svg.tranx+=val*Math.sin((gs.svg.roty+90)*PIOVER180);
+    gs.svg.tranz+=val*Math.cos((gs.svg.roty+90)*PIOVER180);
+
+    // Update cache
+    gs.clientdx=gs.clientx;
+    gs.clientdx=gs.clientx;
   }
 
   // Do a dampened lean return
@@ -917,6 +930,13 @@ function addnamedmodel(name, x, y, z, rotx, roty, rotz)
       return addmodel(models[i], x, y, z, rotx, roty, rotz);
 }
 
+// Track mouse movement
+function mousemovement(e)
+{
+  gs.clientx=e.clientX;
+  gs.clienty=e.clientY;
+}
+
 // Entry point
 function init()
 {
@@ -944,6 +964,8 @@ function init()
   gs.svg.init();
 
   window.addEventListener("resize", function() { playfieldsize(); });
+
+  window.addEventListener("mousemove", function(e) { mousemovement(e); });
 
   playfieldsize();
 
