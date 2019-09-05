@@ -22,6 +22,8 @@ var gs={
 
   // Characters
   player:{id:null, keystate:0, padstate:0}, // input bitfield [action][down][right][up][left]
+  thiskey:0,
+  lastkey:0,
   clientx:0,
   clienty:0,
   clientdx:0,
@@ -35,10 +37,12 @@ var gs={
   score:0,
 
   level:1,
+  newlevel:0,
   blastradius:500,
   infecttimeout:(5*60),
   infectradius:150,
   randoms:new randomizer(3,6,6,4),
+  timeline:new timelineobj(),
   state:0 // 0=intro, 1=title, 2=ingame 3=completed
 };
 
@@ -54,6 +58,11 @@ function updateposition()
 
   try
   {
+    if (document.getElementById("debug")==null)
+    {
+      document.getElementById("wrapper").innerHTML+='<div id="debug" style="position:absolute; top:0px; left:0px; color:white;"></div>';
+    }
+
     document.getElementById("debug").innerHTML=dbg;
   }
 
@@ -245,11 +254,16 @@ function findmodelbyid(id)
 // Switch model colours
 function swapcolours(modelid, source, target)
 {
-  if (modelid==-1) return;
+  try
+  {
+    if (modelid==-1) return;
 
-  for (var i=0; i<gs.activemodels[modelid].c.length; i++)
-    if (gs.activemodels[modelid].c[i]==source)
-      gs.activemodels[modelid].c[i]=target;
+    for (var i=0; i<gs.activemodels[modelid].c.length; i++)
+      if (gs.activemodels[modelid].c[i]==source)
+        gs.activemodels[modelid].c[i]=target;
+  }
+
+  catch (e) {}
 }
 
 // Check infection status flag
@@ -296,9 +310,17 @@ function updatehud()
 
   switch (gs.state)
   {
+    case 1:
+      writeseg(gs.svg.svghud, 180, 200, "BACKSPACE", "gold", 2);
+      writeseg(gs.svg.svghud, 180, 300, "RETURN TO PLANET FIGADORE", "gold", 0.7);
+      writeseg(gs.svg.svghud, 120, 700, "WASD/CURSORS/SPACE/ENTER/GAMEPAD TO PLAY", "gold", 0.5);
+      break;
+
     case 2:
-      writeseg(gs.svg.svghud, 1000, 650, "SCORE "+gs.score, "gold", 0.5);
-      writeseg(gs.svg.svghud, 1000, 600, "LEVEL "+gs.level, "gold", 0.5);
+      writeseg(gs.svg.svghud, 1000, 50, "SCORE "+gs.score, "gold", 0.5);
+
+      if (gs.newlevel==1)
+        writeseg(gs.svg.svghud, 300, 300, "LEVEL "+gs.level, "gold", 2);
       break;
 
     case 3:
@@ -319,6 +341,30 @@ function updatehud()
   }
 }
 
+function addnpcs(count)
+{
+  // Remove NPCs from previous level
+  removenpcs();
+
+  // Add some new invaders
+  for (var n=0; n<count; n++)
+  {
+    var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 600, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
+
+    // Swap first half to red and mark as infected
+    if (n<(count/2))
+    {
+      swapcolours(o, 0, 1);
+      gs.activemodels[o].flags=1;
+    }
+
+    gs.npcs.push(gs.activemodels[o].id);
+
+    gs.activemodels[o].vx=25*Math.sin(gs.activemodels[o].roty*PIOVER180);
+    gs.activemodels[o].vz=-25*Math.cos(gs.activemodels[o].roty*PIOVER180);
+  }
+}
+
 // Update the game world state
 function update()
 {
@@ -331,10 +377,24 @@ function update()
     {
       gs.state=3;
       gs.level=1;
+      gs.lastkey=0; gs.thiskey=0;
 
       updatehud();
 
+      // Start a timeout before allowing keys
+      gs.timeline.reset();
+      gs.timeline.add(1000, function(){ window.requestAnimationFrame(awaitkeyboard); });
+      gs.timeline.begin();
+
       return;
+    }
+    else
+    {
+      gs.newlevel=1;
+
+      gs.timeline.reset();
+      gs.timeline.add(2000, function(){ gs.newlevel=0; });
+      gs.timeline.begin();
     }
 
     gs.blastradius=500-(gs.level*50);
@@ -344,26 +404,8 @@ function update()
     // Play audio to signify change of level
     audio_collect();
 
-    // Remove NPCs from previous level
-    removenpcs();
-
-    // Add some new invaders
-    for (var n=0; n<(5*gs.level); n++)
-    {
-      var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 600, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
-
-      // Swap first half to red and mark as infected
-      if (n<(2.5*gs.level))
-      {
-        swapcolours(o, 0, 1);
-        gs.activemodels[o].flags=1;
-      }
-
-      gs.npcs.push(gs.activemodels[o].id);
-
-      gs.activemodels[o].vx=25*Math.sin(gs.activemodels[o].roty*PIOVER180);
-      gs.activemodels[o].vz=-25*Math.cos(gs.activemodels[o].roty*PIOVER180);
-    }
+    // Add invaders
+    addnpcs(5*gs.level);
 
     return;
   }
@@ -375,8 +417,6 @@ function update()
   // Weapon timeouts
   if (gs.shottimeout>0)
     gs.shottimeout--;
-
-  if (gs.shots.length==0) gs.shottimeout=0;
 
   for (var h=0; h<gs.shots.length; h++)
   {
@@ -427,8 +467,13 @@ function update()
 
               gs.state=3;
               gs.level=1;
+              gs.lastkey=0; gs.thiskey=0;
 
               updatehud();
+
+              gs.timeline.reset();
+              gs.timeline.add(1000, function(){ window.requestAnimationFrame(awaitkeyboard); });
+              gs.timeline.begin();
 
               return;
             }
@@ -458,7 +503,7 @@ function update()
       var shot=gs.activemodels[shotid];
       var nme=gs.activemodels[npcid];
 
-      if (overlap3d(shot.x, shot.y, shot.z, nme.x, nme.y, nme.z, gs.blastradius))
+      if ((nme.flags==1) && (overlap3d(shot.x, shot.y, shot.z, nme.x, nme.y, nme.z, gs.blastradius)))
       {
         // Remove shot
         gs.activemodels.splice(shotid, 1);
@@ -515,7 +560,7 @@ function update()
   gs.activemodels[gs.player.id].roty+=gs.leany;
   gs.activemodels[gs.player.id].rotz+=gs.leanz;
 
-  updateposition();
+//  updateposition();
 
   // Move object by velocity (if required)
   gs.activemodels.forEach(function (item, index) {
@@ -535,7 +580,7 @@ function update()
     if (gs.randoms.rnd(250)<10)
     {
       // Randomize a new angle
-      angle=(gs.activemodels[npcid].roty+gs.randoms.rnd(25))%360;
+      angle=(gs.activemodels[npcid].roty+(gs.randoms.rnd(50)-25))%360;
       gs.activemodels[npcid].roty=angle;
 
       // Set new movement vector
@@ -599,8 +644,9 @@ function rafcallback(timestamp)
   // Remember when we were last called
   gs.lasttime=timestamp;
 
-  // Request we are called on the next frame
-  window.requestAnimationFrame(rafcallback);
+  // Request we are called on the next frame if still playing
+  if (gs.state==2)
+    window.requestAnimationFrame(rafcallback);
 }
 
 // Handle resize events
@@ -672,7 +718,7 @@ function gamepadscan()
       // If we don't already have this one, add mapping for it
       if (gs.gamepad!=padid)
       {
-        console.log("Found new gamepad "+padid+" '"+gamepads[padid].id+"'");
+//        console.log("Found new gamepad "+padid+" '"+gamepads[padid].id+"'");
 
         gs.gamepad=padid;
 
@@ -856,7 +902,7 @@ function gamepadscan()
   // Detect disconnect
   if ((found==0) && (gs.gamepad!=-1))
   {
-    console.log("Disconnected gamepad "+padid);
+//    console.log("Disconnected gamepad "+padid);
     
     gs.gamepad=-1;
   }
@@ -968,6 +1014,9 @@ function updatekeystate(e, dir)
     default:
       break;
   }
+
+  if (dir==1)
+    gs.thiskey=e.which;
 }
 
 // Add a model by name
@@ -983,6 +1032,63 @@ function mousemovement(e)
 {
   gs.clientx=e.clientX;
   gs.clienty=e.clientY;
+}
+
+function startgame()
+{
+  gs.state=2;
+
+  window.requestAnimationFrame(rafcallback);
+}
+
+function awaitkeyboard()
+{
+  // See if something newly pressed
+  if (gs.thiskey!=gs.lastkey)
+  {
+    switch (gs.state)
+    {
+      case 1: // Title, so start game
+        gs.timeline.reset();
+        gs.score=0;
+        gs.level=1;
+
+        gs.lastkey=0;
+        gs.thiskey=0;
+
+        // Add invaders
+        addnpcs(5);
+
+        startgame();
+        break;
+
+      case 2: // In-game, so already processed
+        break;
+
+      case 3: // SUCCESS/FAIL, so return to title
+        showtitle();
+        break;
+
+      default:
+        gs.lastkey=gs.thiskey;
+        break;
+    }
+  }
+  else
+    window.requestAnimationFrame(awaitkeyboard);
+}
+
+function showtitle()
+{
+  gs.state=1;
+  gs.lastkey=0; gs.thiskey=0;
+
+  updatehud();
+
+  // Start a timeout before allowing keys
+  gs.timeline.reset();
+  gs.timeline.add(1000, function(){ window.requestAnimationFrame(awaitkeyboard); });
+  gs.timeline.begin();
 }
 
 // Entry point
@@ -1040,27 +1146,7 @@ function init()
           0);
     }
 
-  for (var n=0; n<10; n++)
-  {
-    var o=addnamedmodel("invader", 0, 600, -3000, 0, gs.randoms.rnd(360), 0);
-
-    // Swap first half to red and mark as infected
-    if (n<(10/2))
-    {
-      swapcolours(o, 0, 1);
-      gs.activemodels[o].flags=1;
-    }
-
-    gs.npcs.push(gs.activemodels[o].id);
-
-    gs.activemodels[o].vx=25*Math.sin(gs.activemodels[o].roty*PIOVER180);
-    gs.activemodels[o].vz=-25*Math.cos(gs.activemodels[o].roty*PIOVER180);
-  }
-
-  gs.state=2;
-
-  // Start the game running
-  window.requestAnimationFrame(rafcallback);
+  showtitle();
 }
 
 // Run the init() once page has loaded
