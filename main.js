@@ -297,6 +297,13 @@ function removenpcs()
   gs.npcs=[];
 }
 
+// Remove all models
+function removeallmodels()
+{
+  removenpcs();
+  gs.activemodels=[];
+}
+
 // Determine if level completed
 function levelcompleted()
 {
@@ -381,6 +388,8 @@ function update()
 
       updatehud();
 
+      removeallmodels();
+
       // Start a timeout before allowing keys
       gs.timeline.reset();
       gs.timeline.add(1000, function(){ window.requestAnimationFrame(awaitkeyboard); });
@@ -391,6 +400,16 @@ function update()
     else
     {
       gs.newlevel=1;
+
+      // World rotation in degrees
+      gs.svg.rotx=0;
+      gs.svg.roty=180;
+      gs.svg.rotz=45;
+
+      // World translation in pixels
+      gs.svg.tranx=0;
+      gs.svg.trany=-500;
+      gs.svg.tranz=5000;
 
       gs.timeline.reset();
       gs.timeline.add(2000, function(){ gs.newlevel=0; });
@@ -470,6 +489,8 @@ function update()
               gs.lastkey=0; gs.thiskey=0;
 
               updatehud();
+
+              removeallmodels();
 
               gs.timeline.reset();
               gs.timeline.add(1000, function(){ window.requestAnimationFrame(awaitkeyboard); });
@@ -1036,13 +1057,32 @@ function mousemovement(e)
 
 function startgame()
 {
+  // World rotation in degrees
+  gs.svg.rotx=0;
+  gs.svg.roty=180;
+  gs.svg.rotz=45;
+
+  // World translation in pixels
+  gs.svg.tranx=0;
+  gs.svg.trany=-500;
+  gs.svg.tranz=5000;
+
   gs.state=2;
 
   window.requestAnimationFrame(rafcallback);
 }
 
-function awaitkeyboard()
+function awaitkeyboard(timestamp)
 {
+  if (gs.state==1)
+  {
+    // Render the model
+    gs.svg.render(timestamp/100);
+    gs.activemodels[0].rotx=((gs.activemodels[0].rotx+2) % 360);
+    gs.activemodels[0].roty=((gs.activemodels[0].roty+2) % 360);
+    gs.activemodels[0].rotz=((gs.activemodels[0].rotz+1) % 360);
+  }
+
   // See if something newly pressed
   if (gs.thiskey!=gs.lastkey)
   {
@@ -1056,6 +1096,31 @@ function awaitkeyboard()
         gs.lastkey=0;
         gs.thiskey=0;
 
+        removeallmodels();
+
+        // Generate terrain model
+        var terrainx=10, terrainy=10;
+        gs.terrain=generateterrain(terrainx, terrainy, 100);
+
+        for (var y=0; y<terrainy; y++)
+          for (var x=0; x<terrainx; x++)
+          {
+            if (gs.randoms.rnd(10)<5)
+              addnamedmodel("tree",
+                ((x-5)*gs.terrain.tilesize)*gs.terrain.s,
+                (((4+gs.terrain.heightmap[(y*gs.terrain.w)+x])*gs.terrain.s)),
+                0-(((y)*gs.terrain.tilesize)*gs.terrain.s),
+                0,
+                gs.randoms.rnd(90),
+                0);
+          }
+
+        addnamedmodel("moon", 200, 900, -50000, 0, 0, 0);
+
+        gs.player.id=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
+        addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
+        addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
+   
         // Add invaders
         addnpcs(5);
 
@@ -1084,6 +1149,21 @@ function showtitle()
   gs.lastkey=0; gs.thiskey=0;
 
   updatehud();
+
+  removeallmodels();
+
+  var o=addnamedmodel("invader", 0, 0, 0, 0, 0, 0);
+  gs.activemodels[0].s=150;
+
+  // World rotation in degrees
+  gs.svg.rotx=0;
+  gs.svg.roty=0;
+  gs.svg.rotz=0;
+
+  // World translation in pixels
+  gs.svg.tranx=0;
+  gs.svg.trany=0;
+  gs.svg.tranz=0;
 
   // Start a timeout before allowing keys
   gs.timeline.reset();
@@ -1122,29 +1202,6 @@ function init()
   window.addEventListener("mousemove", function(e) { mousemovement(e); });
 
   playfieldsize();
-
-  // Generate terrain model
-  var terrainx=10, terrainy=10;
-  gs.terrain=generateterrain(terrainx, terrainy, 100);
-
-  addnamedmodel("moon", 200, 900, -50000, 0, 0, 0);
-
-  gs.player.id=addnamedmodel("starship", 0, 0, 0, 0, 0, 0);
-  addnamedmodel("chipcube", 200, 200, -200, 10, 10, 10);
-  addmodel(gs.terrain, 0, 0, 0, 0, 0, 0);
-
-  for (var y=0; y<terrainy; y++)
-    for (var x=0; x<terrainx; x++)
-    {
-      if (gs.randoms.rnd(10)<5)
-        addnamedmodel("tree",
-          ((x-5)*gs.terrain.tilesize)*gs.terrain.s,
-          (((4+gs.terrain.heightmap[(y*gs.terrain.w)+x])*gs.terrain.s)),
-          0-(((y)*gs.terrain.tilesize)*gs.terrain.s),
-          0,
-          gs.randoms.rnd(90),
-          0);
-    }
 
   showtitle();
 }
