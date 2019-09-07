@@ -310,6 +310,24 @@ function levelcompleted()
   return ((infectedstatus(1)==0) || (gs.npcs.length==0));
 }
 
+function showinfection()
+{
+  var info="";
+  var infected=infectedstatus(1);
+  var ok=infectedstatus(0);
+  var total=infected+ok;
+
+  info+='<rect x="1200" y="100" width="50" height="300" rx="15" fill="black" fill-opacity="0" stroke="rgb(255,215,0)" stroke-width="4"/>';
+
+  // Infected
+  info+='<rect x="1210" y="110" width="30" height="'+((infected/total)*280)+'" rx="5" fill="red" stroke="none" />';
+
+  // Disinfected
+  info+='<rect x="1210" y="'+(110+((infected/total)*280))+'" width="30" height="'+((ok/total)*280)+'" rx="5" fill="green" stroke="none" />';
+
+  gs.svg.svghud.innerHTML+=info;
+}
+
 // Update the HUD
 function updatehud()
 {
@@ -328,6 +346,9 @@ function updatehud()
 
       if (gs.newlevel==1)
         writeseg(gs.svg.svghud, 300, 300, "LEVEL "+gs.level, "gold", 2);
+
+      // Percentage infected
+      showinfection();
       break;
 
     case 3:
@@ -356,7 +377,7 @@ function addnpcs(count)
   // Add some new invaders
   for (var n=0; n<count; n++)
   {
-    var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 600, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
+    var o=addnamedmodel("invader", gs.randoms.rnd(10000)-5000, 800, 0-gs.randoms.rnd(10000), 0, gs.randoms.rnd(360), 0);
 
     // Swap first half to red and mark as infected
     if (n<(count/2))
@@ -408,7 +429,7 @@ function update()
 
       // World translation in pixels
       gs.svg.tranx=0;
-      gs.svg.trany=-500;
+      gs.svg.trany=-600;
       gs.svg.tranz=5000;
 
       gs.timeline.reset();
@@ -1064,7 +1085,7 @@ function startgame()
 
   // World translation in pixels
   gs.svg.tranx=0;
-  gs.svg.trany=-500;
+  gs.svg.trany=-600;
   gs.svg.tranz=5000;
 
   gs.state=2;

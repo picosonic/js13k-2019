@@ -39,7 +39,7 @@ class svg3d
 
     // World translation in pixels
     this.tranx=0;
-    this.trany=-500;
+    this.trany=-600;
     this.tranz=5000;
 
     // 3D to 2D coord cache
