@@ -296,11 +296,18 @@ class svg3d
       // Serialize fill colour and close SVG circle
       lobj+='" fill="rgb('+rgbstr+')" stroke="rgb('+rgbstr+')" />';
 
-      // Do smaller darker circle
+      // Do smaller darker circles
       lobj+='<ellipse ';
       lobj+='cx="'+(this.cx-(mesh.s/3))+'" cy="'+(this.cy-(mesh.s/3))+'" ';
       lobj+='rx="'+(mesh.s/4.5);
       lobj+='" ry="'+(mesh.s/4);
+      rgbstr=" rgba(20,20,20,0.4)";
+      lobj+='" fill="'+rgbstr+'" stroke="'+rgbstr+'" />';
+
+      lobj+='<ellipse ';
+      lobj+='cx="'+(this.cx+(mesh.s/4))+'" cy="'+(this.cy+(mesh.s/4))+'" ';
+      lobj+='rx="'+(mesh.s/6);
+      lobj+='" ry="'+(mesh.s/6);
       rgbstr=" rgba(20,20,20,0.4)";
       lobj+='" fill="'+rgbstr+'" stroke="'+rgbstr+'" /></g>';
 
