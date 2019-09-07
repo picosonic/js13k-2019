@@ -361,6 +361,7 @@ function updatehud()
       {
         writeseg(gs.svg.svghud, 350, 340, "FAILED", "red", 2);
         writeseg(gs.svg.svghud, 140, 480, "TO DISINFECT PLANET FIGADORE", "red", 0.7);
+        writeseg(gs.svg.svghud, 200, 700, "PRESS FIRE TO GO BACK AND TRY AGAIN", "gold", 0.5);
       }
       break;
 
