@@ -1081,6 +1081,8 @@ function awaitkeyboard(timestamp)
     gs.activemodels[0].rotx=((gs.activemodels[0].rotx+2) % 360);
     gs.activemodels[0].roty=((gs.activemodels[0].roty+2) % 360);
     gs.activemodels[0].rotz=((gs.activemodels[0].rotz+1) % 360);
+    if (gs.activemodels[0].s<150)
+      gs.activemodels[0].s++;
   }
 
   // See if something newly pressed
@@ -1153,7 +1155,7 @@ function showtitle()
   removeallmodels();
 
   var o=addnamedmodel("invader", 0, 0, 0, 0, 0, 0);
-  gs.activemodels[0].s=150;
+  gs.activemodels[0].s=0.1;
 
   // World rotation in degrees
   gs.svg.rotx=0;
@@ -1164,6 +1166,8 @@ function showtitle()
   gs.svg.tranx=0;
   gs.svg.trany=0;
   gs.svg.tranz=0;
+
+  gs.svg.render(0);
 
   // Start a timeout before allowing keys
   gs.timeline.reset();
