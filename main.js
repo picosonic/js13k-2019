@@ -403,7 +403,7 @@ function update()
   if (levelcompleted())
   {
     gs.level++;
-    if (gs.level==5)
+    if (gs.level==6)
     {
       gs.state=3;
       gs.level=1;
@@ -526,6 +526,19 @@ function update()
               // Sound the infection
               audio_alien();
             }
+          }
+        }
+        else
+        if ((nme.flags==0) && (nme2.flags==1)) // Clear sees infected
+        {
+          // If infected within range of clear, take evasive action
+          if (overlap3d(nme.x, nme.y, nme.z, nme2.x, nme2.y, nme2.z, gs.infectradius*2.5))
+          {
+            var angle=gs.activemodels[npcid].roty;
+
+            // Slow npc down momentarily
+            gs.activemodels[npcid].vx=5*Math.sin(angle*PIOVER180);
+            gs.activemodels[npcid].vz=-5*Math.cos(angle*PIOVER180);
           }
         }
       }
