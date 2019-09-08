@@ -1,16 +1,16 @@
 {
   "name": "BACKSPACE - Return to planet Figadore",
-  "description": "It's 50 years since humans first went to the moon. Now that we are planning to go back, the Reguliths need to escape before we find them. They have light-jumped to planet Figadore in the Hercules cluster to flee. Fred has been kidnapped by the aliens who want to take over the planet. Play as his sister Jade and race to get the planet back and prevent the Regulith spreading a deadly infection.",
+  "description": "It's 50 years since humans first went to the moon. Now that we are planning to go back, the Regoliths need to escape before we find them. They have light-jumped to planet Figadore in the Hercules cluster to flee. Fred has been kidnapped by the aliens who want to take over the planet. Play as his sister Jade and race to get the planet back and prevent the Regolith spreading a deadly infection.",
   "images" :
   {
     "image_large": "image-big.jpg",
     "image_thumbnail": "image-small.jpg"
   },
-  "categories": ["Desktop", "Mobile", "Server", "Web Monetization", "WebXR"],
+  "categories": ["Desktop"],
   "user" :
   {
-    "name": "optional",
-    "website": "optional",
-    "twitter": "optional"
+    "name": "picosonic",
+    "website": "https://picosonic.github.io/js13k-2019/",
+    "twitter": "femtosonic"
   }
 }
