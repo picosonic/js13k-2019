@@ -40,7 +40,11 @@ Here is a rough diary of progress as posted on [Twitter](https://twitter.com/) a
 
 13th August
 -----------
+![Wireframe 3D test](aug13.png?raw=true "Wireframe 3D test")
+
 I enjoyed playing 3D space simulation games like [Elite](https://en.wikipedia.org/wiki/Elite_(video_game)) from the [BBC Micro](https://en.wikipedia.org/wiki/BBC_Micro) and [Zarch](https://en.wikipedia.org/wiki/Zarch) on the [Acorn Archimedes](https://en.wikipedia.org/wiki/Acorn_Archimedes) and decided to create a 3D engine which renders to SVG.
+
+The image above shows a still from a 3D wireframe to SVG render test using a thargoid model from the Elite game.
 
 15th to 19th August
 -------------------
@@ -84,7 +88,9 @@ Decided to try being more compact with the font data and reduced the SVG point a
 
 22nd August
 -----------
-Bringing some of the various JS experiments together now to see how they work together. Up to 23% used now including SVG font, 3D to SVG render engine and single 3D model. The gold clock reminds me of the TV series 24.
+![3D model with text overlay](aug22.png?raw=true "3D model with text overlay")
+
+Bringing some of the various JS experiments together now to see how they work together. Up to 23% used now including SVG font, 3D to SVG render engine and single 3D model. The gold clock reminds me of the [TV series 24](https://en.wikipedia.org/wiki/24_(TV_series)).
 
 Added gamepad support - taken mostly from the updates I'd done recently to last year's entry.
 
@@ -100,6 +106,8 @@ Fixed issue where 3D models had a property "n" for the name, however this was al
 
 23rd August
 -----------
+![SVG distortion test](aug23.png?raw=true "SVG distortion test")
+
 Playing about with SVG distortion, gamepad control and rotating models, need to work on gameplay next.
 
 Added [RFC4122 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) to each model added to the active models array so they can be uniquely identified when dealing with hit detection.
@@ -108,7 +116,7 @@ Also added ability to transform 3D models before converting them from model coor
 
 24th August
 -----------
-Must resist the urge to tinker with my entry from last year. Although still keeping it within 13k by 85 bytes.
+Must resist the urge to tinker with my entry from last year. Although still keeping it within 13k by 85 bytes. :)
 
 28th August
 -----------
@@ -122,9 +130,11 @@ Added model velocity vectors.
 
 29th August
 -----------
-Working on the player starship and added terrain generation with randomly placed trees.
+![Player 3D model source sketch](aug29.png?raw=true "Player 3D model source sketch")
 
-Source sketch.
+![Player 3D model checking in Meshlab](aug29b.png?raw=true "Player 3D model checking in Meshlab")
+
+Working on the player starship and added terrain generation with randomly placed trees.
 
 Fixed gamepad controls.
 
@@ -154,12 +164,16 @@ Added starship leaning, gradient sky, support for keyboard and more gamepads.
 
 31st August
 -----------
+![Invader 3D model source sketch](aug31.png?raw=true "Invader 3D model source sketch")
+
 Thought it was time to add some enemies.
 
 Much easier. Should've made the player ship this simple.
 
 2nd September
 -------------
+![Flight testing](sep2.png?raw=true "Flight testing")
+
 Starting to feel more like a game ..
 
 * Added Invaders
@@ -172,27 +186,65 @@ Starting to feel more like a game ..
 
 3rd September
 -------------
+![HUD testing](sep3.png?raw=true "HUD testing")
+
 Added moon, depth blur and score to [HUD](https://en.wikipedia.org/wiki/Head-up_display_(video_gaming)).
+
+Improved SVG scale/crop when browser is resized, target size 1280x720 16:9.
+
+Added level transition once completed.
+
+Changed player to always be moving.
+
+Added missile 3D object.
+
+Made starship boosters flash.
+
+More jsfxr sound effects added.
+
+Allow 14-segment font to be scaled.
+
+4th September
+-------------
+Allow player to fail level when all NPCs are infected.
+
+Added mouse [strafing](https://en.wikipedia.org/wiki/Strafing_(gaming)).
+
+Started the game state machine to transition between title screen, in-play and game WIN or LOOSE.
+
+Found the infection radius size in the hit detection between invaders was a bit too large making the game a bit tricky.
+
+Change strategy from killing invaders to disinfecting invaders. So the infected ones are shown in red.
+
+Disinfection missiles were a bit small, so increased the size.
+
+Fixed issue with Y coordinates being flipped when writing 14-segment text.
+
+The face depth blur was slowing the [FPS](https://en.wikipedia.org/wiki/Frame_rate) down too much, so reduced it to use less levels of blur.
+
+Allow shots to pass non-infected [NPCs](https://en.wikipedia.org/wiki/Non-player_character) to make the game a bit easier.
 
 5th September
 -------------
-More updates
+Added animation timelines using module from last year's entry.
 
-* More text overlays
-* Fixed text coordinates
-* Changed mission goals
-* Added more sound effects
-* More active NPC flights
-* End game on SUCCESS/FAILURE
-* Added animation timelines
-* More obvious level up
-* Allow shots to pass non-infected [NPCs](https://en.wikipedia.org/wiki/Non-player_character)
+More obvious level up with "LEVEL n" display.
+
+7th September
+-------------
+Added spinning invader model to title screen.
+
+Added infection status bar to HUD.
 
 8th September
 -------------
+Made the uninfected starships try to avoid the infected ones.
+
 Submitted game early on the last day before my weeks holiday.
 
 73% of 13k used with 3530 bytes left.
+
+Go [play the game NOW](https://2019.js13kgames.com/entries/backspace-return-to-planet-figadore) if you haven't already :)
 
 # Libraries used
 * [jsfxr](https://github.com/mneubrand/jsfxr) JS sound effects
