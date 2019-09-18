@@ -38,6 +38,10 @@ My main goals were :
 
 Here is a rough diary of progress as posted on [Twitter](https://twitter.com/) and taken from notes and [commit logs](https://github.com/picosonic/js13k-2019/commits/)..
 
+13th August
+-----------
+I enjoyed playing 3D space simulation games like [Elite](https://en.wikipedia.org/wiki/Elite_(video_game)) from the [BBC Micro](https://en.wikipedia.org/wiki/BBC_Micro) and [Zarch](https://en.wikipedia.org/wiki/Zarch) on the [Acorn Archimedes](https://en.wikipedia.org/wiki/Acorn_Archimedes) and decided to create a 3D engine which renders to SVG.
+
 19th August
 -----------
 ![14-segment font coding](aug19.png?raw=true "14-segment font coding")
