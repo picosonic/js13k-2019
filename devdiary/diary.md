@@ -234,6 +234,8 @@ More obvious level up with "LEVEL n" display.
 
 7th September
 -------------
+![Title screen](sep7.png?raw=true "Title screen")
+
 Added spinning invader model to title screen.
 
 Added infection status bar to HUD.
