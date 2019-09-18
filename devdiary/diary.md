@@ -4,7 +4,7 @@
 
 This was my second game jam entry, also my second HTML5/JS game. My first from JS13k 2018 is available here [Planet Figadore has gone OFFLINE](https://github.com/picosonic/js13k-2018)
 
-First of all just before the theme was announced I created a new project template with updated build and minify steps from my entry last year.
+First of all just before the theme was announced I created a new project template with updated build and minify steps from my entry last year. Which also made me want to fix some of the things about last year's entry, which I figured would be good to get some JS game coding practice in before the competion started.
 
 Once the theme was announced I had a bit of a thought about the kind of game I could create to fit the theme, these are some of my initial ideas ..
 
@@ -42,6 +42,18 @@ Here is a rough diary of progress as posted on [Twitter](https://twitter.com/) a
 -----------
 I enjoyed playing 3D space simulation games like [Elite](https://en.wikipedia.org/wiki/Elite_(video_game)) from the [BBC Micro](https://en.wikipedia.org/wiki/BBC_Micro) and [Zarch](https://en.wikipedia.org/wiki/Zarch) on the [Acorn Archimedes](https://en.wikipedia.org/wiki/Acorn_Archimedes) and decided to create a 3D engine which renders to SVG.
 
+15th to 19th August
+-------------------
+No development due to long weekend away.
+
+However my initial thoughts on the game are to have it in 3 parts.
+
+* The journey back to planet Figadore - a bit like Elite.
+* Flying around the planet and [dog-fighting](https://en.wikipedia.org/wiki/Dogfight) against AI - a bit like Zarch.
+* 3D platformer exploring the planet - a bit like [Ratchet and Clank](https://en.wikipedia.org/wiki/Ratchet_%26_Clank).
+
+I decided to concentrate my initial efforts on the flying round the planet section.
+
 19th August
 -----------
 ![14-segment font coding](aug19.png?raw=true "14-segment font coding")
@@ -58,11 +70,129 @@ I have a reasonable amount of code now to display 3D models within the browser a
 
 I added a small writer function to test I'd encoded the characters to hex correctly, to my amazement it was correct first time! Although it did take much longer than expected.
 
+21st August
+-----------
+Added paramter to allow 14-segment font to be drawn in any colour.
+
+Started pulling together some of the expirements I'd done with 3D SVG engine.
+
+Settled on a name for the game - **BACKSPACE - Return to planet Figadore**.
+
+Had to change my build script because [YUI compressor](https://github.com/yui/yuicompressor) didn't seem to work with JS classes.
+
+Decided to try being more compact with the font data and reduced the SVG point accuracy by rounding to nearest decimal.
+
 22nd August
 -----------
 Bringing some of the various JS experiments together now to see how they work together. Up to 23% used now including SVG font, 3D to SVG render engine and single 3D model. The gold clock reminds me of the TV series 24.
 
+Added gamepad support - taken mostly from the updates I'd done recently to last year's entry.
 
+Noticed on slower machines that high polygon counts in the SVG could render slower so added shaperendering="optimizeSpeed" parameter.
+
+Played about with various lighting methods to give a more solid structure to the 3D models.
+
+Added seeded random number generator from last year's entry.
+
+Added drawing of simple 3D models with HUD.
+
+Fixed issue where 3D models had a property "n" for the name, however this was also used to store the face normals. So ended up renaming "n" to "t" for title.
+
+23rd August
+-----------
+Playing about with SVG distortion, gamepad control and rotating models, need to work on gameplay next.
+
+Added [RFC4122 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) to each model added to the active models array so they can be uniquely identified when dealing with hit detection.
+
+Also added ability to transform 3D models before converting them from model coordinates into world coordinates.
+
+24th August
+-----------
+Must resist the urge to tinker with my entry from last year. Although still keeping it within 13k by 85 bytes.
+
+28th August
+-----------
+Now at the half way point.
+
+Finally ... after much head scratching - got the trees to stick to the terrain.
+
+Having weird issues with [Z draw order](https://en.wikipedia.org/wiki/Z-buffering), so decided to switch Z axis and use i[right-handed geometry](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#In_three_dimensions). Also used average Z depth rather than furthest point of face.
+
+Added model velocity vectors.
+
+29th August
+-----------
+Working on the player starship and added terrain generation with randomly placed trees.
+
+Source sketch.
+
+Fixed gamepad controls.
+
+Fixed another issue with Z draw order.
+
+Increased ambient lighting as some models were getting a bit dark.
+
+Changed to start in the centre of the generated terrain.
+
+Testing model velocity vectors when placed in the world.
+
+Changed the control method from navigate to fly.
+
+I had a weird issue where the GamePad could cause the player to stutter on screen. I tracked this down to the GamePad update calls being in a different "thread" to the main update call.
+
+Move the player model around to match the transformation of the view so that they are always visible and at the same relative position.
+
+Feel like time is slipping away as I've got a family holiday planned for 9th to 13th September and don't want to take my laptop with me. Not best timing meaning I'll loose the last week of JS13k.
+
+30% of 13k used.
+
+30th August
+-----------
+Added starship leaning, gradient sky, support for keyboard and more gamepads.
+
+37% of 13k used.
+
+31st August
+-----------
+Thought it was time to add some enemies.
+
+Much easier. Should've made the player ship this simple.
+
+2nd September
+-------------
+Starting to feel more like a game ..
+
+* Added Invaders
+* Capability to fire spinning missiles
+* Missile to Invader collision detection
+* Sound effects (with [jsfxr](https://github.com/mneubrand/jsfxr))
+* Multiple levels of difficulty
+* Tilted camera down slightly
+* Flashing boosters
+
+3rd September
+-------------
+Added moon, depth blur and score to [HUD](https://en.wikipedia.org/wiki/Head-up_display_(video_gaming)).
+
+5th September
+-------------
+More updates
+
+* More text overlays
+* Fixed text coordinates
+* Changed mission goals
+* Added more sound effects
+* More active NPC flights
+* End game on SUCCESS/FAILURE
+* Added animation timelines
+* More obvious level up
+* Allow shots to pass non-infected [NPCs](https://en.wikipedia.org/wiki/Non-player_character)
+
+8th September
+-------------
+Submitted game early on the last day before my weeks holiday.
+
+73% of 13k used with 3530 bytes left.
 
 # Libraries used
 * [jsfxr](https://github.com/mneubrand/jsfxr) JS sound effects
