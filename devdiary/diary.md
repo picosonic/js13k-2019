@@ -46,13 +46,22 @@ I enjoyed playing 3D space simulation games like [Elite](https://en.wikipedia.or
 -----------
 ![14-segment font coding](aug19.png?raw=true "14-segment font coding")
 
-I liked the look of [14-segment font displays](https://en.wikipedia.org/wiki/Fourteen-segment_display) and wanted to add one as the main font for the game. So set about creating one using [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics), first I had to number the segments, then work out the 4 hex codes for each character..
+I liked the look of [14-segment font displays](https://en.wikipedia.org/wiki/Fourteen-segment_display) and wanted to add one as the main font for the game. So set about creating one using [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics), first I had to number the segments, then work out the 4 hex codes for each character.
+
+![First test of 3D SVG engine](aug19a.png?raw=true "First test of 3D SVG engine")
+
+I have a reasonable amount of code now to display 3D models within the browser as SVG and wanted to push the limits of what it would do. The above screenshot shows a 3D model with 6556 vertices and 10030 faces - just a few more than I'd ever use in the game.
 
 20th August
 -----------
 ![14-segment font test](aug20.png?raw=true "14-segment font test")
 
-Once I'd finished the coding I added a writer to test I'd encoded the characters to hex correctly, to my amazement it was correct first time!
+I added a small writer function to test I'd encoded the characters to hex correctly, to my amazement it was correct first time! Although it did take much longer than expected.
+
+22nd August
+-----------
+Bringing some of the various JS experiments together now to see how they work together. Up to 23% used now including SVG font, 3D to SVG render engine and single 3D model. The gold clock reminds me of the TV series 24.
+
 
 
 # Libraries used
