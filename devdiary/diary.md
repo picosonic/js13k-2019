@@ -68,7 +68,7 @@ I later found somebody else who had done [something similar](https://github.com/
 
 ![First test of 3D SVG engine](aug19b.png?raw=true "First test of 3D SVG engine")
 
-I have a reasonable amount of code now to display 3D models within the browser as SVG and wanted to push the limits of what it would do. The above screenshot shows a 3D model with 6556 vertices and 10030 faces - just a few more than I'd ever use in the game.
+I have a reasonable amount of code now to display 3D models within the browser as SVG and wanted to push the limits of what it would do. The above screenshot shows a 3D model of a netballer with 6556 vertices and 10030 faces - just a few more than I'd ever use in the game. At this point I had rudimentary [3D to 2D conversion](https://en.wikipedia.org/wiki/3D_projection#Weak_perspective_projection), face rendering and basic lighting.
 
 20th August
 -----------
