@@ -42,10 +42,17 @@ Here is a rough diary of progress as posted on [Twitter](https://twitter.com/) a
 -----------
 ![14-segment font coding](aug19.png?raw=true "14-segment font coding")
 
-I liked the look of [14-segment font displays](https://en.wikipedia.org/wiki/Fourteen-segment_display) and wanted to add one as the main font for the game. So set about creating one using [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics).
+I liked the look of [14-segment font displays](https://en.wikipedia.org/wiki/Fourteen-segment_display) and wanted to add one as the main font for the game. So set about creating one using [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics), first I had to number the segments, then work out the 4 hex codes for each character..
+
+20th August
+-----------
+![14-segment font test](aug20.png?raw=true "14-segment font test")
+
+Once I'd finished the coding I added a writer to test I'd encoded the characters to hex correctly, to my amazement it was correct first time!
+
 
 # Libraries used
-* [jsfxr](https://github.com/mneubrand/jsfxr)
+* [jsfxr](https://github.com/mneubrand/jsfxr) JS sound effects
 
 # Tools used
 * [Ubuntu OS](https://www.ubuntu.com/)
@@ -56,3 +63,4 @@ I liked the look of [14-segment font displays](https://en.wikipedia.org/wiki/Fou
 * [YUI Compressor](https://github.com/yui/yuicompressor) JS/CSS compressor
 * [Google closure compiler](https://closure-compiler.appspot.com/home)
 * [advzip](https://github.com/amadvance/advancecomp) (uses [7-Zip](https://sourceforge.net/projects/sevenzip/files/7-Zip/) deflate to compress further)
+
