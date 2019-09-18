@@ -242,6 +242,8 @@ Added infection status bar to HUD.
 
 8th September
 -------------
+![In game with infection bar](sep8.png?raw=true "In game with infection bar")
+
 Made the uninfected starships try to avoid the infected ones.
 
 Submitted game early on the last day before my weeks holiday.
