@@ -126,7 +126,7 @@ Now at the half way point.
 
 Finally ... after much head scratching - got the trees to stick to the terrain.
 
-Having weird issues with [Z draw order](https://en.wikipedia.org/wiki/Z-buffering), so decided to switch Z axis and use i[right-handed geometry](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#In_three_dimensions). Also used average Z depth rather than furthest point of face.
+Having weird issues with [Z draw order](https://en.wikipedia.org/wiki/Z-buffering), so decided to switch Z axis and use [right-handed geometry](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#In_three_dimensions). Also used average Z depth rather than furthest point of face.
 
 Added model velocity vectors.
 
@@ -250,7 +250,7 @@ Submitted game early on the last day before my weeks holiday.
 
 73% of 13k used with 3530 bytes left.
 
-Go [play the game NOW](https://2019.js13kgames.com/entries/backspace-return-to-planet-figadore) if you haven't already :)
+Go [play the game NOW](https://js13kgames.com/entries/backspace-return-to-planet-figadore) if you haven't already :)
 
 # Libraries used
 * [jsfxr](https://github.com/mneubrand/jsfxr) JS sound effects
